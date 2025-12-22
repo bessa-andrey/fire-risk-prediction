@@ -1,0 +1,126 @@
+================================================================================
+ETAPA 2 - PROCESSAMENTO DE DADOS - QUICK START
+================================================================================
+
+OBJETIVO RÁPIDO:
+Transformar dados brutos (Etapa 1) em dados limpos e estruturados para ML
+
+TEMPO TOTAL: ~15 minutos (execução dos scripts)
+
+================================================================================
+PASSO 1: VERIFICAR PRÉ-REQUISITOS
+================================================================================
+
+1. Confirmar que Etapa 1 foi completada:
+   - data/raw/firms_hotspots/firms_combined_2022-2024.csv (deve existir)
+   - data/raw/mcd64a1/MCD64A1_*.tif (36 arquivos)
+   - data/raw/sentinel2/Sentinel2_*.tif (6 arquivos)
+   - data/raw/era5/ERA5_*.nc (12+ arquivos)
+
+2. Dependências Python:
+   - pandas, numpy, xarray, rasterio, rioxarray (instaladas)
+   - Se faltar: pip install rasterio rioxarray xarray
+
+================================================================================
+PASSO 2: EXECUTAR PREPROCESSING
+================================================================================
+
+OPÇÃO A: Executar Master Script (RECOMENDADO)
+  cd "c:\Users\bessa\Downloads\Projeto Mestrado"
+  python src/preprocessing/run_all_preprocessing.py
+
+OPÇÃO B: Executar Scripts Individuais
+  python src/preprocessing/process_firms.py
+  python src/preprocessing/process_mcd64a1.py
+  python src/preprocessing/process_sentinel2.py
+  python src/preprocessing/process_era5.py
+
+OPÇÃO C: Carregar Dados em Python
+  from src.preprocessing.data_loader import DataLoader
+  loader = DataLoader()
+  loader.load_all()
+  loader.print_summary()
+
+================================================================================
+PASSO 3: VERIFICAR OUTPUTS
+================================================================================
+
+Após execução, deve ter em data/processed/:
+
+firms/
+  ├── firms_processed.csv (hotspots limpos + persistência)
+  └── firms_stats.json
+
+burned_area/
+  ├── mcd64a1_burned_area.nc (série temporal queimadas)
+  └── mcd64a1_stats.json
+
+sentinel2/
+  ├── sentinel2_dry_composite.nc (imagens dry season)
+  ├── sentinel2_wet_composite.nc (imagens wet season)
+  └── sentinel2_stats.json
+
+era5/
+  ├── era5_daily_aggregates.nc (dados meteorológicos diários)
+  ├── weather_statistics.csv (estatísticas climáticas)
+  └── era5_stats.json
+
+================================================================================
+SAÍDA ESPERADA
+================================================================================
+
+Para Module A (Falsos Positivos):
+  - firms_processed.csv (1 linha = 1 hotspot candidato)
+  - Colunas principais: latitude, longitude, confidence, persistence_score
+  - Cada hotspot tem score de persistência (0-1)
+
+Para Module B (Propagação D+1):
+  - mcd64a1_burned_area.nc (ground truth: onde queimou cada dia)
+  - sentinel2_*_composite.nc (vegetação/NDVI)
+  - era5_daily_aggregates.nc (temperatura, vento, chuva)
+
+================================================================================
+DOCUMENTAÇÃO DETALHADA
+================================================================================
+
+Leia ETAPA2_PROCESSAMENTO.md para:
+  - Explicação detalhada de cada script
+  - O que cada transformação faz
+  - Parâmetros ajustáveis
+  - Troubleshooting e erros comuns
+  - Próximas etapas (Etapa 3)
+
+================================================================================
+PRÓXIMA ETAPA
+================================================================================
+
+Após Etapa 2, você está pronto para Etapa 3 (Feature Engineering):
+  - weak_labeling.py: Gerar labels para Module A
+  - feature_engineering.py: Extrair features tabulares
+  - calculate_persistence.py: Métricas de persistência
+  - create_grid_labels.py: Grids para Module B
+
+Documentação: ETAPA3_FEATURE_ENGINEERING.md (em breve)
+
+================================================================================
+RESUMO
+================================================================================
+
+Etapa 1 (Ingestão): Raw → data/raw/
+  ✓ CONCLUÍDO: 708 hotspots FIRMS + 36 MCD64A1 + 6 Sentinel-2 + 12 ERA5
+
+Etapa 2 (Processamento): data/raw/ → data/processed/
+  ← VOCÊ ESTÁ AQUI
+  - Limpeza e normalização
+  - Agregações temporais
+  - Cálculo de índices
+
+Etapa 3 (Features): data/processed/ → datasets ML
+  - Weak labeling (y_train)
+  - Feature engineering (X_train)
+
+Etapa 4 (Training): Treinar Module A e B
+
+================================================================================
+ÚLTIMO ATUALIZADO: 11 de novembro de 2025
+================================================================================

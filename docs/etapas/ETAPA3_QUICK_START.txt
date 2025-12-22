@@ -1,0 +1,181 @@
+================================================================================
+ETAPA 3 - FEATURE ENGINEERING & MODEL TRAINING - QUICK START
+================================================================================
+
+OBJETIVO RÁPIDO:
+Gerar weak labels, extrair features, treinar classificador (Module A)
+COM GPU acceleration para velocidade
+
+TEMPO TOTAL: 30-45 min (com GPU) / 2-3 horas (com CPU)
+
+================================================================================
+PASSO 1: VERIFICAR GPU (IMPORTANTE!)
+================================================================================
+
+1. Verificar que GPU está disponível:
+   nvidia-smi
+
+2. Se aparecer erro "nvidia-smi: command not found":
+   - Instalar NVIDIA drivers: https://www.nvidia.com/Download/driverDetails.aspx
+   - Instalar CUDA Toolkit: https://developer.nvidia.com/cuda-toolkit
+   - Reiniciar computador
+
+3. Se GPU aparecer mas não CUDA:
+   - pip install lightgbm[gpu]
+   - ou: conda install lightgbm-gpu -c conda-forge
+
+================================================================================
+PASSO 2: EXECUTAR ETAPA 3
+================================================================================
+
+OPÇÃO A: Master Script (RECOMENDADO)
+  cd "c:\Users\bessa\Downloads\Projeto Mestrado"
+  python src/preprocessing/run_etapa3.py
+
+OPÇÃO B: Scripts Individuais
+  python src/preprocessing/weak_labeling.py
+  python src/preprocessing/feature_engineering.py
+  python src/models/train_module_a.py
+
+OPÇÃO C: Com GPU Explícito
+  nvidia-smi  # Verificar GPU
+  python src/preprocessing/run_etapa3.py  # Detecta automaticamente
+
+================================================================================
+PASSO 3: ENTENDER O QUE ESTÁ ACONTECENDO
+================================================================================
+
+weak_labeling.py (5-10 min):
+  Para cada hotspot FIRMS:
+  - Busca em MCD64A1 (ground truth)
+  - Label: 0=falso positivo, 1=verdadeiro positivo
+  Output: hotspots_labeled.csv
+
+feature_engineering.py (5-10 min):
+  Para cada hotspot labeled:
+  - Extrai temperatura, vento, umidade (ERA5)
+  - Extrai NDVI, vegetação (Sentinel-2)
+  - Cria ~20 features por hotspot
+  Output: module_a_features.csv (~700 × 20)
+
+train_module_a.py (15-30 min COM GPU, 1 hora COM CPU):
+  Treina 2 modelos em paralelo:
+  - LightGBM com device_type='gpu'
+  - XGBoost com tree_method='gpu_hist'
+  Output: 2 modelos .pkl + métricas JSON
+
+================================================================================
+PASSO 4: VERIFICAR OUTPUTS
+================================================================================
+
+Após execução bem-sucedida, verificar:
+
+data/processed/module_a/
+  ├── hotspots_labeled.csv (hotspots com labels)
+  ├── hotspots_labeled.gpkg (formato QGIS)
+  ├── module_a_features.csv (features tabulares)
+  └── weak_labeling_stats.json
+
+data/models/module_a/
+  ├── module_a_lightgbm.pkl (modelo GBM)
+  ├── module_a_xgboost.pkl (modelo XGB)
+  ├── module_a_lightgbm_metrics.json (métricas)
+  └── training_summary.json (resumo)
+
+================================================================================
+PASSO 5: INTERPRETAR RESULTADOS
+================================================================================
+
+Em weak_labeling_stats.json:
+  "false_positives": 250  ← Hotspots sem queimada (ruidosos)
+  "true_positives": 450   ← Hotspots com queimada confirmada
+  "fp_percentage": 35.7%  ← Taxa de ruído (esperado 20-40%)
+
+Em training_summary.json:
+  "lightgbm": {
+    "pr_auc": 0.8234      ← PRINCIPAL MÉTRICA (alvo ≥0.80)
+    "roc_auc": 0.8567     ← Secundária
+    "accuracy": 0.8123    ← Terciária (enganosa em dados desbalanceados)
+  }
+  "device": "GPU"         ← Confirmação que GPU foi usado
+
+================================================================================
+PASSO 6: PRÓXIMOS PASSOS
+================================================================================
+
+Após Etapa 3, Module A está pronto para:
+
+1. Deploy em produção (usar modelo para classificar novos hotspots)
+2. Validação adicional (spatial/temporal validation)
+3. Module B (propagação D+1) - próxima etapa
+
+Executar:
+  python src/models/evaluate_module_a.py  # Validação detalhada
+  python src/models/train_module_b.py     # Propagação D+1
+
+================================================================================
+GPU ACCELERATION DETALHES
+================================================================================
+
+LightGBM GPU:
+  device_type='gpu'
+  Requer NVIDIA CUDA (GPU Compute Capability ≥ 5.0)
+  Speedup esperado: 4-6x vs CPU
+
+XGBoost GPU:
+  tree_method='gpu_hist'
+  Requer NVIDIA CUDA
+  Speedup esperado: 4-6x vs CPU
+
+Se GPU não está disponível:
+  Scripts fazem fallback automático para CPU
+  Sem mudança de código, apenas mais lento
+
+Verificar uso GPU durante treino:
+  # Em outro terminal
+  nvidia-smi -l 1  # Atualiza a cada 1 segundo
+
+================================================================================
+TROUBLESHOOTING RÁPIDO
+================================================================================
+
+Erro: "label file not found"
+→ Executar weak_labeling.py primeiro
+
+Erro: "features file not found"
+→ Executar feature_engineering.py primeiro
+
+Erro: GPU detectada mas não sendo usada
+→ Instalar: pip install lightgbm[gpu]
+→ Ou: conda install lightgbm-gpu -c conda-forge
+
+Memória insuficiente em GPU
+→ Fallback automático para CPU
+→ Ou reduzir num_leaves/max_depth
+
+Classes desbalanceadas (muitos FP, poucos TP)
+→ Normal! Hotspots espúrios são maioria
+→ Métrica correta: PR-AUC (não Accuracy)
+
+================================================================================
+RESUMO
+================================================================================
+
+Etapa 1: Ingestão       ✓ Completa (data/raw/)
+Etapa 2: Processamento  ✓ Completa (data/processed/)
+Etapa 3: Features + ML  ← VOCÊ ESTÁ AQUI
+  weak_labeling        Gera labels (0/1)
+  feature_engineering  Extrai 20+ features
+  train_module_a       Treina com GPU
+
+Output: Classificador treinado (Module A) pronto para usar!
+
+Tempo esperado:
+  - Com GPU (RTX 3060+): 30-45 minutos
+  - Com CPU (i7 quad-core): 2-3 horas
+
+Próximo: Module B (propagação D+1) ou Deploy
+
+================================================================================
+ÚLTIMO ATUALIZADO: 11 de novembro de 2025
+================================================================================

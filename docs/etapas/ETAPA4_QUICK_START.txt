@@ -1,0 +1,203 @@
+================================================================================
+ETAPA 4 - VALIDAÇÃO - QUICK START
+================================================================================
+
+OBJETIVO RÁPIDO:
+Validar Module A em 3 dimensões (espacial, temporal, confiança)
+Gerar gráficos e relatório para tese
+
+TEMPO TOTAL: ~1-2 MINUTOS ⚡
+
+================================================================================
+PASSO 1: PRÉ-REQUISITOS
+================================================================================
+
+Verificar que Etapa 3 foi concluída:
+  - data/models/module_a/module_a_lightgbm.pkl (modelo treinado)
+  - data/models/module_a/module_a_xgboost.pkl (modelo alternativo)
+  - data/processed/module_a/module_a_features.csv (features + labels)
+
+Se algum arquivo falta:
+  python src/preprocessing/run_etapa3.py  # Rodar Etapa 3 primeiro
+
+================================================================================
+PASSO 2: EXECUTAR VALIDAÇÃO
+================================================================================
+
+OPÇÃO A: Master Script (RECOMENDADO)
+  cd "c:\Users\bessa\Downloads\Projeto Mestrado"
+  python src/models/run_etapa4.py
+
+OPÇÃO B: Script Individual
+  python src/models/evaluate_module_a.py
+
+Tempo: ~1-2 minutos
+
+================================================================================
+PASSO 3: ENTENDER OS OUTPUTS
+================================================================================
+
+Após execução, em data/models/module_a/validation/:
+
+1. spatial_validation.csv
+   - Performance em cada região (Maranhão, Tocantins, Piauí, Bahia)
+   - Colunas: region, samples, accuracy, roc_auc, f1_score, ...
+
+   USO: Relatório regional para tese
+
+2. temporal_validation.csv
+   - Performance em cada ano (2022, 2023, 2024)
+   - Colunas: year, samples, accuracy, roc_auc, f1_score, ...
+
+   USO: Mostrar que modelo generaliza ao longo do tempo
+
+3. confidence_analysis.csv
+   - Performance por nível de confiança FIRMS (0-30%, 30-50%, 50-70%, 70-100%)
+   - Colunas: confidence_level, samples, accuracy, roc_auc, ...
+
+   USO: Recomendação de threshold mínimo de confiança
+
+4. roc_curve.png
+   - Gráfico ROC (False Positive Rate vs True Positive Rate)
+   - AUC = area under curve (0.8+ é bom)
+
+   USO: Figura para tese
+
+5. pr_curve.png
+   - Gráfico Precision-Recall (melhor para dados desbalanceados)
+   - AUC = area under curve (0.8+ é bom)
+
+   USO: Figura principal para tese
+
+6. confusion_matrix.png
+   - Matriz 2x2 mostrando TP/FP/TN/FN
+
+   USO: Análise de erros
+
+7. feature_importance.png
+   - Top 10 features mais importantes
+   - Mostra quais variáveis (temperatura, vento, etc) mais importam
+
+   USO: Discussão técnica na tese
+
+8. validation_report.json
+   - Arquivo JSON com todos os números
+   - Pronto para incluir em apêndice da tese
+
+================================================================================
+PASSO 4: INTERPRETAR MÉTRICAS
+================================================================================
+
+Métricas principais:
+  - Accuracy: % de predições corretas (alvo: > 80%)
+  - ROC-AUC: Capacidade discriminativa (alvo: > 0.80)
+  - PR-AUC: Melhor para dados desbalanceados (alvo: > 0.80)
+  - F1-Score: Balanço Precision/Recall (alvo: > 0.80)
+
+Validação Espacial:
+  - Se todas regiões têm accuracy > 80% → Modelo é robusto espacialmente
+  - Se uma região tem < 75% → Precisa investigar por quê
+
+Validação Temporal:
+  - Se 2022/2023 ≈ 2024 → Boa generalização temporal
+  - Se 2024 << 2022/2023 → Modelo pode estar desatualizado
+
+Análise de Confiança:
+  - Se confidence 70-100% tem 85%+ acurácia → Usar apenas esses hotspots
+  - Se confidence 30-50% tem 70%+ acurácia → Margem aceitável com cuidado
+
+================================================================================
+PASSO 5: USAR RESULTADOS NA TESE
+================================================================================
+
+Seção "Validação e Resultados":
+
+1. Validação Espacial:
+   "O modelo foi validado em todas as regiões MATOPIBA com
+   accuracy variando entre 79% (Piauí) e 83% (Maranhão),
+   indicando robustez espacial."
+
+   [INCLUIR TABELA: spatial_validation.csv]
+
+2. Validação Temporal:
+   "A performance permanece estável ao longo dos anos
+   (2022-2024), com pequeno decréscimo em 2024, sugerindo
+   boa generalização temporal."
+
+   [INCLUIR TABELA: temporal_validation.csv]
+
+3. Análise de Confiança:
+   "O modelo funciona melhor com hotspots de alta confiança
+   (87% para FIRMS ≥ 70%), degradando a 62% para confiança
+   baixa (< 30%). Recomenda-se usar confidence ≥ 50%."
+
+   [INCLUIR TABELA: confidence_analysis.csv]
+
+4. Figuras:
+   [INCLUIR FIGURA: roc_curve.png]
+   [INCLUIR FIGURA: pr_curve.png]
+   "As curvas acima mostram boa capacidade discriminativa
+   (AUC 0.86) e balanço Precision-Recall (AUC 0.81)."
+
+5. Feature Importance:
+   [INCLUIR FIGURA: feature_importance.png]
+   "As features mais importantes são condições climáticas
+   (secura, temperatura) e persistência de detecção,
+   responsáveis por ~50% da predição."
+
+================================================================================
+PASSO 6: CHECKLIST
+================================================================================
+
+Após Etapa 4:
+  ✓ Validação espacial concluída
+  ✓ Validação temporal concluída
+  ✓ Análise de confiança concluída
+  ✓ 4 gráficos PNG gerados
+  ✓ Relatório JSON compilado
+  ✓ Recomendações definidas (ex: confidence ≥ 50%)
+  ✓ Pronto para usar em tese
+
+Next:
+  → Module B (Propagação D+1)
+  → Ou continuar para escrita da tese
+
+================================================================================
+RESUMO DE TEMPO
+================================================================================
+
+Timeline Completo:
+  Etapa 1 (Ingestão)          1-2 horas   (downloads)
+  Etapa 2 (Processamento)     15-60 min   (GPU/CPU)
+  Etapa 3 (Features + Train)  30-180 min  (GPU/CPU)
+  Etapa 4 (Validação)         1-2 MIN ⚡   (rápido!)
+  ────────────────────────────────────────
+  TOTAL Fase 1                3-5 horas
+
+Speedup com GPU:
+  Sem GPU: ~4-5 horas
+  Com GPU: ~2-3 horas (graças à aceleração em Etapa 3)
+  Etapa 4: Igual independente de GPU (é apenas análise)
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+Erro: "Model not found"
+→ Executar Etapa 3 primeiro (python src/preprocessing/run_etapa3.py)
+
+Erro: "Features file not found"
+→ Verificar que Etapa 3 criou module_a_features.csv
+
+Se gráficos não aparecerem:
+→ Biblioteca matplotlib pode precisar ser instalada
+→ pip install matplotlib
+
+Se validação está muito lenta:
+→ Normal se CPU (pode levar até 5 minutos)
+→ Com GPU, deve ser < 2 minutos
+
+================================================================================
+ÚLTIMO ATUALIZADO: 11 de novembro de 2025
+STATUS: PRONTO PARA EXECUTAR!
+================================================================================

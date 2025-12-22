@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+.eggs/
+*.egg-info/
+*.egg
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Data files (too large for git)
+data/
+*.tif
+*.tiff
+*.nc
+*.nc4
+*.hdf
+*.h5
+*.csv
+!**/example*.csv
+
+# Credentials and secrets
+.env
+*.env
+credentials.json
+*_credentials.json
+*.pem
+*.key
+secrets/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Build
+dist/
+build/
+*.spec
+
+# Cache
+.cache/
+*.pickle
+*.pkl
+
+# Office files (dissertacao, apresentacoes pessoais)
+*.docx
+*.xlsx
+*.pptx
+Dissertação/
+
+# Other personal/temp
+nul
+artigos/
+logos/
+outputs/
+.claude/
