@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_73eb3e2ec5b0669559a8f532059464e0 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+    <div style="position: fixed; bottom: 50px; left: 50px; z-index: 1000;
+                background-color: white; padding: 10px; border-radius: 5px;
+                border: 2px solid gray; font-size: 14px;">
+        <b>Legenda</b><br>
+        <i class="fa fa-circle" style="color:red"></i> Confiável (Fogo Real)<br>
+        <i class="fa fa-circle" style="color:orange"></i> Suspeito (Falso Positivo)<br>
+        <i class="fa fa-circle" style="color:blue"></i> Centro da Busca<br>
+        <small>Tamanho = FRP (potência)</small>
+    </div>
+    
+    
+    <div style="position: fixed; top: 10px; left: 50px; z-index: 1000;
+                background-color: white; padding: 15px; border-radius: 5px;
+                border: 2px solid gray; font-size: 14px; max-width: 400px;">
+        <h3 style="margin: 0;">Módulo A - Classificação de Hotspots</h3>
+        <p style="margin: 5px 0;">
+            <b>Data:</b> 2025-11-25 14:30<br>
+            <b>Centro:</b> (-9.8428, -47.6141)<br>
+            <b>Total:</b> 75 hotspots
+        </p>
+    </div>
+    
+    
+            <div class="folium-map" id="map_73eb3e2ec5b0669559a8f532059464e0" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_73eb3e2ec5b0669559a8f532059464e0 = L.map(
+                "map_73eb3e2ec5b0669559a8f532059464e0",
+                {
+                    center: [-9.8428, -47.6141],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 10,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_2a2f5b48486989c2b41db535fe38ec77 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_2a2f5b48486989c2b41db535fe38ec77.addTo(map_73eb3e2ec5b0669559a8f532059464e0);
+        
+    
+            var tile_layer_b7460025ec5548c6393c9b2eb87f6668 = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "Esri",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_b7460025ec5548c6393c9b2eb87f6668.addTo(map_73eb3e2ec5b0669559a8f532059464e0);
+        
+    
+            var circle_805a41025c78f0fb004f3f5ec870c28d = L.circle(
+                [-9.8428, -47.6141],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": "5", "dashOffset": null, "fill": false, "fillColor": "blue", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 50000, "stroke": true, "weight": 2}
+            ).addTo(map_73eb3e2ec5b0669559a8f532059464e0);
+        
+    
+        var popup_6098340e75e98b6cd678edee330c0765 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_5b8cf493c2bafad397a9e656b34328fa = $(`<div id="html_5b8cf493c2bafad397a9e656b34328fa" style="width: 100.0%; height: 100.0%;">Área de busca: 50 km</div>`)[0];
+                popup_6098340e75e98b6cd678edee330c0765.setContent(html_5b8cf493c2bafad397a9e656b34328fa);
+            
+        
+
+        circle_805a41025c78f0fb004f3f5ec870c28d.bindPopup(popup_6098340e75e98b6cd678edee330c0765)
+        ;
+
+        
+    
+    
+            var marker_b32bd5aafaaf4e44d776eae69b141079 = L.marker(
+                [-9.8428, -47.6141],
+                {
+}
+            ).addTo(map_73eb3e2ec5b0669559a8f532059464e0);
+        
+    
+            var icon_1ee89d0783b71163eb73b72960a417c7 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "crosshairs",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_6369fd536115d0b72a89bf384804b25e = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_2c29b33582ce5e50eecaabad03658ca7 = $(`<div id="html_2c29b33582ce5e50eecaabad03658ca7" style="width: 100.0%; height: 100.0%;">             <b>Centro da Busca</b><br>             Lat: -9.8428<br>             Lon: -47.6141<br>             <hr>             <b>Condições Atuais:</b><br>             Temp: 28.0°C<br>             Umidade: 78%<br>             Vento: 3.2 m/s<br>             Drying Index: 29         </div>`)[0];
+                popup_6369fd536115d0b72a89bf384804b25e.setContent(html_2c29b33582ce5e50eecaabad03658ca7);
+            
+        
+
+        marker_b32bd5aafaaf4e44d776eae69b141079.bindPopup(popup_6369fd536115d0b72a89bf384804b25e)
+        ;
+
+        
+    
+    
+                marker_b32bd5aafaaf4e44d776eae69b141079.setIcon(icon_1ee89d0783b71163eb73b72960a417c7);
+            
+    
+            var feature_group_9fb631402014f25a266c7cce489c6b59 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_9fb631402014f25a266c7cce489c6b59.addTo(map_73eb3e2ec5b0669559a8f532059464e0);
+        
+    
+            var feature_group_c509f2be18217d94f8a9c3d77bbf8622 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var circle_marker_eb96f56c48e5e4db5811c150c10eead1 = L.circleMarker(
+                [-9.85314, -47.61103],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_8252d325b0864cd756243862b5e44081 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_b7da4cf282835c53f3c23505981686ec = $(`<div id="html_b7da4cf282835c53f3c23505981686ec" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8531, -47.6110<br>                 <b>Data:</b> 2025-11-16 408<br>                 <b>FRP:</b> 0.62 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_8252d325b0864cd756243862b5e44081.setContent(html_b7da4cf282835c53f3c23505981686ec);
+            
+        
+
+        circle_marker_eb96f56c48e5e4db5811c150c10eead1.bindPopup(popup_8252d325b0864cd756243862b5e44081)
+        ;
+
+        
+    
+    
+            var circle_marker_a04f345fd686441daa158f03109d8764 = L.circleMarker(
+                [-9.84906, -47.61033],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_f70fec4975024655518baed3b8ea3ca6 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_30bcc976e46357127eb15bdeef069add = $(`<div id="html_30bcc976e46357127eb15bdeef069add" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8491, -47.6103<br>                 <b>Data:</b> 2025-11-16 408<br>                 <b>FRP:</b> 0.62 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_f70fec4975024655518baed3b8ea3ca6.setContent(html_30bcc976e46357127eb15bdeef069add);
+            
+        
+
+        circle_marker_a04f345fd686441daa158f03109d8764.bindPopup(popup_f70fec4975024655518baed3b8ea3ca6)
+        ;
+
+        
+    
+    
+            var circle_marker_e5e8bab2c7fb3a72a4e80d36066cc421 = L.circleMarker(
+                [-9.83965, -47.61619],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_ab79b8da794aca92369504145bc68963 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_58c4e75c1a831eb08e2fefea7b55f68a = $(`<div id="html_58c4e75c1a831eb08e2fefea7b55f68a" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8397, -47.6162<br>                 <b>Data:</b> 2025-11-16 408<br>                 <b>FRP:</b> 1.40 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_ab79b8da794aca92369504145bc68963.setContent(html_58c4e75c1a831eb08e2fefea7b55f68a);
+            
+        
+
+        circle_marker_e5e8bab2c7fb3a72a4e80d36066cc421.bindPopup(popup_ab79b8da794aca92369504145bc68963)
+        ;
+
+        
+    
+    
+            var circle_marker_91a965a7d40db3d52ad6b1442f9e97c4 = L.circleMarker(
+                [-9.83901, -47.61989],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_260c9f9609466308da26c71eee45a5bd = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_5db642ea55fb70044accb6db5204d230 = $(`<div id="html_5db642ea55fb70044accb6db5204d230" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8390, -47.6199<br>                 <b>Data:</b> 2025-11-16 408<br>                 <b>FRP:</b> 0.79 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_260c9f9609466308da26c71eee45a5bd.setContent(html_5db642ea55fb70044accb6db5204d230);
+            
+        
+
+        circle_marker_91a965a7d40db3d52ad6b1442f9e97c4.bindPopup(popup_260c9f9609466308da26c71eee45a5bd)
+        ;
+
+        
+    
+    
+            var circle_marker_e0e3b84cf6b033d69d267f011b1abfc2 = L.circleMarker(
+                [-9.83837, -47.62357],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_a6d2f33bde42fdfa9e5e29513ccd0153 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_d712ed487c2162ddc08fd96e59df9fe2 = $(`<div id="html_d712ed487c2162ddc08fd96e59df9fe2" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8384, -47.6236<br>                 <b>Data:</b> 2025-11-16 408<br>                 <b>FRP:</b> 0.79 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_a6d2f33bde42fdfa9e5e29513ccd0153.setContent(html_d712ed487c2162ddc08fd96e59df9fe2);
+            
+        
+
+        circle_marker_e0e3b84cf6b033d69d267f011b1abfc2.bindPopup(popup_a6d2f33bde42fdfa9e5e29513ccd0153)
+        ;
+
+        
+    
+    
+            var circle_marker_04238482604cab688c0e743a06daeaa6 = L.circleMarker(
+                [-9.51368, -47.27348],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_c3aca7b9e1188aff09ee2f5edd81a92d = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_35cf9f495b549dc3f4728497e34823b1 = $(`<div id="html_35cf9f495b549dc3f4728497e34823b1" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5137, -47.2735<br>                 <b>Data:</b> 2025-11-16 408<br>                 <b>FRP:</b> 0.96 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_c3aca7b9e1188aff09ee2f5edd81a92d.setContent(html_35cf9f495b549dc3f4728497e34823b1);
+            
+        
+
+        circle_marker_04238482604cab688c0e743a06daeaa6.bindPopup(popup_c3aca7b9e1188aff09ee2f5edd81a92d)
+        ;
+
+        
+    
+    
+            var circle_marker_5ee1116b60312ac55eeb6ba4aded337d = L.circleMarker(
+                [-9.50968, -47.27277],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_f169fafe4bbb51b765b8640683df6513 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_ac023decaebea9d5075281270b221d19 = $(`<div id="html_ac023decaebea9d5075281270b221d19" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5097, -47.2728<br>                 <b>Data:</b> 2025-11-16 408<br>                 <b>FRP:</b> 2.10 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_f169fafe4bbb51b765b8640683df6513.setContent(html_ac023decaebea9d5075281270b221d19);
+            
+        
+
+        circle_marker_5ee1116b60312ac55eeb6ba4aded337d.bindPopup(popup_f169fafe4bbb51b765b8640683df6513)
+        ;
+
+        
+    
+    
+            var circle_marker_ae47f3c2380fbf87c37f2147ce01b182 = L.circleMarker(
+                [-9.50908, -47.27632],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_8e72358275c187d6aa4ac1c9e3820489 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_384695fcd6f560c6c6a4c0d881df977b = $(`<div id="html_384695fcd6f560c6c6a4c0d881df977b" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5091, -47.2763<br>                 <b>Data:</b> 2025-11-16 408<br>                 <b>FRP:</b> 2.10 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_8e72358275c187d6aa4ac1c9e3820489.setContent(html_384695fcd6f560c6c6a4c0d881df977b);
+            
+        
+
+        circle_marker_ae47f3c2380fbf87c37f2147ce01b182.bindPopup(popup_8e72358275c187d6aa4ac1c9e3820489)
+        ;
+
+        
+    
+    
+            var circle_marker_008fb7de0857e9a91f4fd3f7ad6e63af = L.circleMarker(
+                [-9.50567, -47.27205],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_eee9525b8d5759952b0bbe494e25762d = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_d5db6f8f6fbe883b70ee03a8d9aa83ee = $(`<div id="html_d5db6f8f6fbe883b70ee03a8d9aa83ee" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5057, -47.2721<br>                 <b>Data:</b> 2025-11-16 408<br>                 <b>FRP:</b> 2.10 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_eee9525b8d5759952b0bbe494e25762d.setContent(html_d5db6f8f6fbe883b70ee03a8d9aa83ee);
+            
+        
+
+        circle_marker_008fb7de0857e9a91f4fd3f7ad6e63af.bindPopup(popup_eee9525b8d5759952b0bbe494e25762d)
+        ;
+
+        
+    
+    
+            var circle_marker_7e2d87bb59e213017d8463f5f3b8ec78 = L.circleMarker(
+                [-9.50167, -47.27132],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_d679a86d9fcb508a2abc8a2a4424d6eb = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_39a2bdc745fa2c1dcf5d984ffed2c638 = $(`<div id="html_39a2bdc745fa2c1dcf5d984ffed2c638" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5017, -47.2713<br>                 <b>Data:</b> 2025-11-16 408<br>                 <b>FRP:</b> 1.33 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_d679a86d9fcb508a2abc8a2a4424d6eb.setContent(html_39a2bdc745fa2c1dcf5d984ffed2c638);
+            
+        
+
+        circle_marker_7e2d87bb59e213017d8463f5f3b8ec78.bindPopup(popup_d679a86d9fcb508a2abc8a2a4424d6eb)
+        ;
+
+        
+    
+    
+            var circle_marker_5b9b29add5ebf543b1e60a47ad97c7b2 = L.circleMarker(
+                [-10.27315, -48.05446],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_416e8a0e66971c508439382afd7c1890 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_20fc6cf148c71bf6c1122d5a7c51054a = $(`<div id="html_20fc6cf148c71bf6c1122d5a7c51054a" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.2731, -48.0545<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 5.67 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.7%<br>                 • Suspeito: 99.3%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_416e8a0e66971c508439382afd7c1890.setContent(html_20fc6cf148c71bf6c1122d5a7c51054a);
+            
+        
+
+        circle_marker_5b9b29add5ebf543b1e60a47ad97c7b2.bindPopup(popup_416e8a0e66971c508439382afd7c1890)
+        ;
+
+        
+    
+    
+            var circle_marker_6a891f82fa579474b3fab66f7f01e512 = L.circleMarker(
+                [-10.27262, -48.05096],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_dee68be706defaa861f37e02928b7a08 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_7ce030ea9bd1a62bf8cebc6e4bcaecb3 = $(`<div id="html_7ce030ea9bd1a62bf8cebc6e4bcaecb3" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.2726, -48.0510<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 5.67 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_dee68be706defaa861f37e02928b7a08.setContent(html_7ce030ea9bd1a62bf8cebc6e4bcaecb3);
+            
+        
+
+        circle_marker_6a891f82fa579474b3fab66f7f01e512.bindPopup(popup_dee68be706defaa861f37e02928b7a08)
+        ;
+
+        
+    
+    
+            var circle_marker_a0c9d5cde4e4c77a9dd26b3ea3697b45 = L.circleMarker(
+                [-10.26984, -48.05498],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_03cd505035a2525ecc15e4f437e01e81 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_a7d7d1bcec2cd511b183dec8d4bd5106 = $(`<div id="html_a7d7d1bcec2cd511b183dec8d4bd5106" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.2698, -48.0550<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 5.67 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_03cd505035a2525ecc15e4f437e01e81.setContent(html_a7d7d1bcec2cd511b183dec8d4bd5106);
+            
+        
+
+        circle_marker_a0c9d5cde4e4c77a9dd26b3ea3697b45.bindPopup(popup_03cd505035a2525ecc15e4f437e01e81)
+        ;
+
+        
+    
+    
+            var circle_marker_7bf726591f275187174b183d3740a8f0 = L.circleMarker(
+                [-9.88844, -47.69016],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_42b6301324aff4fb91a3249b6ea8c993 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_29b011a0091a298f3aab08acf66781ac = $(`<div id="html_29b011a0091a298f3aab08acf66781ac" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8884, -47.6902<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 5.73 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.7%<br>                 • Suspeito: 99.3%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_42b6301324aff4fb91a3249b6ea8c993.setContent(html_29b011a0091a298f3aab08acf66781ac);
+            
+        
+
+        circle_marker_7bf726591f275187174b183d3740a8f0.bindPopup(popup_42b6301324aff4fb91a3249b6ea8c993)
+        ;
+
+        
+    
+    
+            var circle_marker_9736abb7d7bc39448fe759b2116e3d64 = L.circleMarker(
+                [-9.88095, -47.61945],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_d2f09fb1192d38b69f5de3c175e3fbcc = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_af8ba23b1c80343b02d8453965f2ee6a = $(`<div id="html_af8ba23b1c80343b02d8453965f2ee6a" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8810, -47.6195<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 4.82 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.7%<br>                 • Suspeito: 99.3%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_d2f09fb1192d38b69f5de3c175e3fbcc.setContent(html_af8ba23b1c80343b02d8453965f2ee6a);
+            
+        
+
+        circle_marker_9736abb7d7bc39448fe759b2116e3d64.bindPopup(popup_d2f09fb1192d38b69f5de3c175e3fbcc)
+        ;
+
+        
+    
+    
+            var circle_marker_29016e8d318eb3dc1939d969a145cb49 = L.circleMarker(
+                [-9.87763, -47.61997],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_d49b005f8b6147ee488d5adfc9de71db = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_cd6af4657e93efeb8d9fa4053ad5ced0 = $(`<div id="html_cd6af4657e93efeb8d9fa4053ad5ced0" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8776, -47.6200<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 4.82 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_d49b005f8b6147ee488d5adfc9de71db.setContent(html_cd6af4657e93efeb8d9fa4053ad5ced0);
+            
+        
+
+        circle_marker_29016e8d318eb3dc1939d969a145cb49.bindPopup(popup_d49b005f8b6147ee488d5adfc9de71db)
+        ;
+
+        
+    
+    
+            var circle_marker_ef402767195a630cbb3ba552fad71a08 = L.circleMarker(
+                [-9.87709, -47.61645],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_905385988fefce692db45ed95a2ef394 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_bc8b60a0bb3e4b15f7a1f160fa4fbb8d = $(`<div id="html_bc8b60a0bb3e4b15f7a1f160fa4fbb8d" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8771, -47.6165<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 3.92 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_905385988fefce692db45ed95a2ef394.setContent(html_bc8b60a0bb3e4b15f7a1f160fa4fbb8d);
+            
+        
+
+        circle_marker_ef402767195a630cbb3ba552fad71a08.bindPopup(popup_905385988fefce692db45ed95a2ef394)
+        ;
+
+        
+    
+    
+            var circle_marker_2c05053b812f957e7331c0887f57d858 = L.circleMarker(
+                [-9.87654, -47.61294],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_7c7a0e15ee46b58a52a7e7fc5b37b334 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_80cd066e80d752ef3a7b781be3614b91 = $(`<div id="html_80cd066e80d752ef3a7b781be3614b91" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8765, -47.6129<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 3.92 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_7c7a0e15ee46b58a52a7e7fc5b37b334.setContent(html_80cd066e80d752ef3a7b781be3614b91);
+            
+        
+
+        circle_marker_2c05053b812f957e7331c0887f57d858.bindPopup(popup_7c7a0e15ee46b58a52a7e7fc5b37b334)
+        ;
+
+        
+    
+    
+            var circle_marker_2a65b3b3b5ff4cc134759e943fa0f77c = L.circleMarker(
+                [-9.876, -47.60942],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_a8bfe21d07258c52311bcbb113ebd588 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_87fa6ba9fd350262754d809b5f45831a = $(`<div id="html_87fa6ba9fd350262754d809b5f45831a" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8760, -47.6094<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 4.65 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_a8bfe21d07258c52311bcbb113ebd588.setContent(html_87fa6ba9fd350262754d809b5f45831a);
+            
+        
+
+        circle_marker_2a65b3b3b5ff4cc134759e943fa0f77c.bindPopup(popup_a8bfe21d07258c52311bcbb113ebd588)
+        ;
+
+        
+    
+    
+            var circle_marker_2a027bffc2bddf8d6cf018840604a935 = L.circleMarker(
+                [-9.87214, -47.60643],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_f21002153b979de287cd77abc03caba5 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_b5c6b780eec677622aefa0b223e75f33 = $(`<div id="html_b5c6b780eec677622aefa0b223e75f33" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8721, -47.6064<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 5.83 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.5%<br>                 • Suspeito: 99.5%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_f21002153b979de287cd77abc03caba5.setContent(html_b5c6b780eec677622aefa0b223e75f33);
+            
+        
+
+        circle_marker_2a027bffc2bddf8d6cf018840604a935.bindPopup(popup_f21002153b979de287cd77abc03caba5)
+        ;
+
+        
+    
+    
+            var circle_marker_b2f486444efda6077e9a4ca3aed76d8d = L.circleMarker(
+                [-9.86881, -47.60695],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_666edec4b5178593d0051818ad4e4b2b = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_f238308c971ed6edcd2cabba87c35538 = $(`<div id="html_f238308c971ed6edcd2cabba87c35538" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8688, -47.6069<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 5.83 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_666edec4b5178593d0051818ad4e4b2b.setContent(html_f238308c971ed6edcd2cabba87c35538);
+            
+        
+
+        circle_marker_b2f486444efda6077e9a4ca3aed76d8d.bindPopup(popup_666edec4b5178593d0051818ad4e4b2b)
+        ;
+
+        
+    
+    
+            var circle_marker_d741e75be8b68fd38b750fde4b1a22d6 = L.circleMarker(
+                [-9.86766, -47.62152],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_3262cc56f0907f028c55bb0389f9bad8 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_850378a3066f0cd527738d12d07dcc04 = $(`<div id="html_850378a3066f0cd527738d12d07dcc04" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8677, -47.6215<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 6.18 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.8%<br>                 • Suspeito: 99.2%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_3262cc56f0907f028c55bb0389f9bad8.setContent(html_850378a3066f0cd527738d12d07dcc04);
+            
+        
+
+        circle_marker_d741e75be8b68fd38b750fde4b1a22d6.bindPopup(popup_3262cc56f0907f028c55bb0389f9bad8)
+        ;
+
+        
+    
+    
+            var circle_marker_d58b54bfd679460114bd3638bc882ed1 = L.circleMarker(
+                [-9.86705, -47.6396],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_7297d855b2333c462dfd426342f50bd0 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_bcfbef5102a918e77bd78a724f15a778 = $(`<div id="html_bcfbef5102a918e77bd78a724f15a778" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8671, -47.6396<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 7.79 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.7%<br>                 • Suspeito: 99.3%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_7297d855b2333c462dfd426342f50bd0.setContent(html_bcfbef5102a918e77bd78a724f15a778);
+            
+        
+
+        circle_marker_d58b54bfd679460114bd3638bc882ed1.bindPopup(popup_7297d855b2333c462dfd426342f50bd0)
+        ;
+
+        
+    
+    
+            var circle_marker_15b4d7e4856892a75f342a3748aec35e = L.circleMarker(
+                [-9.86658, -47.61449],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_2c308bac47626f26c168f8ae22e30994 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_fc7f98cb3102458b91c3ad817a763850 = $(`<div id="html_fc7f98cb3102458b91c3ad817a763850" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8666, -47.6145<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 8.59 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.7%<br>                 • Suspeito: 99.3%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_2c308bac47626f26c168f8ae22e30994.setContent(html_fc7f98cb3102458b91c3ad817a763850);
+            
+        
+
+        circle_marker_15b4d7e4856892a75f342a3748aec35e.bindPopup(popup_2c308bac47626f26c168f8ae22e30994)
+        ;
+
+        
+    
+    
+            var circle_marker_bc7d2498105947e36736ab8b4d80db4a = L.circleMarker(
+                [-9.85913, -47.6088],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_71a8378c8b2b3b09aa29a249e710027c = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_3123762e7db4b3bd43490995cfc6310f = $(`<div id="html_3123762e7db4b3bd43490995cfc6310f" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8591, -47.6088<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 6.36 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_71a8378c8b2b3b09aa29a249e710027c.setContent(html_3123762e7db4b3bd43490995cfc6310f);
+            
+        
+
+        circle_marker_bc7d2498105947e36736ab8b4d80db4a.bindPopup(popup_71a8378c8b2b3b09aa29a249e710027c)
+        ;
+
+        
+    
+    
+            var circle_marker_44bc2fca08e19cd625089e6ea997fa3c = L.circleMarker(
+                [-9.85455, -47.6455],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_58189b9c44a562c008ba5d7505a5f864 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_a6fc24a569c2700d4e54f5ff421de887 = $(`<div id="html_a6fc24a569c2700d4e54f5ff421de887" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8545, -47.6455<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 3.17 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_58189b9c44a562c008ba5d7505a5f864.setContent(html_a6fc24a569c2700d4e54f5ff421de887);
+            
+        
+
+        circle_marker_44bc2fca08e19cd625089e6ea997fa3c.bindPopup(popup_58189b9c44a562c008ba5d7505a5f864)
+        ;
+
+        
+    
+    
+            var circle_marker_31af02ae37324bc76d561dcc01d3bd49 = L.circleMarker(
+                [-9.85401, -47.64198],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_264f0320501c547ca7fc6e2c8af7e457 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_2ec5eb0d8ba05bdc41f629789732f0d4 = $(`<div id="html_2ec5eb0d8ba05bdc41f629789732f0d4" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8540, -47.6420<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 5.45 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.7%<br>                 • Suspeito: 99.3%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_264f0320501c547ca7fc6e2c8af7e457.setContent(html_2ec5eb0d8ba05bdc41f629789732f0d4);
+            
+        
+
+        circle_marker_31af02ae37324bc76d561dcc01d3bd49.bindPopup(popup_264f0320501c547ca7fc6e2c8af7e457)
+        ;
+
+        
+    
+    
+            var circle_marker_0b5f7344b436b907c50e3c2b9795002c = L.circleMarker(
+                [-9.85194, -47.60633],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_cca5c02d68ca14a7be1d1c8130919f69 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_b95759d3c5413da97ff3f11024c863c4 = $(`<div id="html_b95759d3c5413da97ff3f11024c863c4" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8519, -47.6063<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 4.93 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.5%<br>                 • Suspeito: 99.5%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_cca5c02d68ca14a7be1d1c8130919f69.setContent(html_b95759d3c5413da97ff3f11024c863c4);
+            
+        
+
+        circle_marker_0b5f7344b436b907c50e3c2b9795002c.bindPopup(popup_cca5c02d68ca14a7be1d1c8130919f69)
+        ;
+
+        
+    
+    
+            var circle_marker_4d887c047098da0249e61054c97774c8 = L.circleMarker(
+                [-9.85069, -47.6425],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_3d2ad3dae5fe0234fdba9e25f689e4e7 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_bbb9a42b05857b07d2523785b600a6cc = $(`<div id="html_bbb9a42b05857b07d2523785b600a6cc" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8507, -47.6425<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 7.49 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.9%<br>                 • Suspeito: 99.1%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_3d2ad3dae5fe0234fdba9e25f689e4e7.setContent(html_bbb9a42b05857b07d2523785b600a6cc);
+            
+        
+
+        circle_marker_4d887c047098da0249e61054c97774c8.bindPopup(popup_3d2ad3dae5fe0234fdba9e25f689e4e7)
+        ;
+
+        
+    
+    
+            var circle_marker_f713497b214abb886a81cb8e13c8d591 = L.circleMarker(
+                [-9.84862, -47.60684],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_1b60c5d084555408d253913c8d3cfb9b = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_ee24ad6fba92207ac9c071eb7c556455 = $(`<div id="html_ee24ad6fba92207ac9c071eb7c556455" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8486, -47.6068<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 4.93 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.7%<br>                 • Suspeito: 99.3%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_1b60c5d084555408d253913c8d3cfb9b.setContent(html_ee24ad6fba92207ac9c071eb7c556455);
+            
+        
+
+        circle_marker_f713497b214abb886a81cb8e13c8d591.bindPopup(popup_1b60c5d084555408d253913c8d3cfb9b)
+        ;
+
+        
+    
+    
+            var circle_marker_b4f0c4bd14bfe0e485f1dede30d79777 = L.circleMarker(
+                [-9.84584, -47.61087],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_9b107ec455d766e59d50446a70c7984a = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_27d6cd482b577b659d0c40c6074a397f = $(`<div id="html_27d6cd482b577b659d0c40c6074a397f" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8458, -47.6109<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 11.75 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_9b107ec455d766e59d50446a70c7984a.setContent(html_27d6cd482b577b659d0c40c6074a397f);
+            
+        
+
+        circle_marker_b4f0c4bd14bfe0e485f1dede30d79777.bindPopup(popup_9b107ec455d766e59d50446a70c7984a)
+        ;
+
+        
+    
+    
+            var circle_marker_09f7db41791279c1853781ccc7645515 = L.circleMarker(
+                [-9.84251, -47.61139],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_c737b9ff9b01528d68482011f7137ff9 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_713dbbe8ec02defaceb8399b1b13c367 = $(`<div id="html_713dbbe8ec02defaceb8399b1b13c367" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8425, -47.6114<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 11.75 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_c737b9ff9b01528d68482011f7137ff9.setContent(html_713dbbe8ec02defaceb8399b1b13c367);
+            
+        
+
+        circle_marker_09f7db41791279c1853781ccc7645515.bindPopup(popup_c737b9ff9b01528d68482011f7137ff9)
+        ;
+
+        
+    
+    
+            var circle_marker_2abbbba29982c8dd29cc5296abd2f70c = L.circleMarker(
+                [-9.84081, -47.62244],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_c706c264b23283d6fa4d8d1ac3e1967e = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_8a930a3dbca5154198b4237456c1efe3 = $(`<div id="html_8a930a3dbca5154198b4237456c1efe3" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8408, -47.6224<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 6.75 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_c706c264b23283d6fa4d8d1ac3e1967e.setContent(html_8a930a3dbca5154198b4237456c1efe3);
+            
+        
+
+        circle_marker_2abbbba29982c8dd29cc5296abd2f70c.bindPopup(popup_c706c264b23283d6fa4d8d1ac3e1967e)
+        ;
+
+        
+    
+    
+            var circle_marker_6576672697f5ab041a6b946ebbe20370 = L.circleMarker(
+                [-9.83973, -47.61543],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_2a583d6b1f2a070bde8dee2f70686102 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_de4698aaa217151388ce14c7d9d917c0 = $(`<div id="html_de4698aaa217151388ce14c7d9d917c0" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8397, -47.6154<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 8.01 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_2a583d6b1f2a070bde8dee2f70686102.setContent(html_de4698aaa217151388ce14c7d9d917c0);
+            
+        
+
+        circle_marker_6576672697f5ab041a6b946ebbe20370.bindPopup(popup_2a583d6b1f2a070bde8dee2f70686102)
+        ;
+
+        
+    
+    
+            var circle_marker_72973a18eb6c6f96d0702f6636c6c2c1 = L.circleMarker(
+                [-9.83919, -47.61191],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_5dd6cf379325e54a6b1dd5a5d358b10f = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_73c66b4cb999a83898043eb68f81aef9 = $(`<div id="html_73c66b4cb999a83898043eb68f81aef9" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8392, -47.6119<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 8.01 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_5dd6cf379325e54a6b1dd5a5d358b10f.setContent(html_73c66b4cb999a83898043eb68f81aef9);
+            
+        
+
+        circle_marker_72973a18eb6c6f96d0702f6636c6c2c1.bindPopup(popup_5dd6cf379325e54a6b1dd5a5d358b10f)
+        ;
+
+        
+    
+    
+            var circle_marker_3be0b50bf74b408deff137c4b0868708 = L.circleMarker(
+                [-9.77853, -47.32871],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_bbf82d35ca8df2a5546e3134197842bd = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_7283357347d2ee9b27c7749414f0de82 = $(`<div id="html_7283357347d2ee9b27c7749414f0de82" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7785, -47.3287<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 11.50 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_bbf82d35ca8df2a5546e3134197842bd.setContent(html_7283357347d2ee9b27c7749414f0de82);
+            
+        
+
+        circle_marker_3be0b50bf74b408deff137c4b0868708.bindPopup(popup_bbf82d35ca8df2a5546e3134197842bd)
+        ;
+
+        
+    
+    
+            var circle_marker_1d425f96cd209047986ea477a4e65769 = L.circleMarker(
+                [-9.75536, -47.22316],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_0d8157f72aff894eb9c3d69fedf22332 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_751b11da3f07969bd2c7d9cb8af83ff0 = $(`<div id="html_751b11da3f07969bd2c7d9cb8af83ff0" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7554, -47.2232<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 8.96 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_0d8157f72aff894eb9c3d69fedf22332.setContent(html_751b11da3f07969bd2c7d9cb8af83ff0);
+            
+        
+
+        circle_marker_1d425f96cd209047986ea477a4e65769.bindPopup(popup_0d8157f72aff894eb9c3d69fedf22332)
+        ;
+
+        
+    
+    
+            var circle_marker_a937a12f35dac1de7c0d0dc9573805c4 = L.circleMarker(
+                [-9.75257, -47.22725],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6.944, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_d41ebabfb94257ec8c358e99080c2a39 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_e431d9ce0dba3fbfcd47fd53a1442368 = $(`<div id="html_e431d9ce0dba3fbfcd47fd53a1442368" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7526, -47.2272<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 34.72 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_d41ebabfb94257ec8c358e99080c2a39.setContent(html_e431d9ce0dba3fbfcd47fd53a1442368);
+            
+        
+
+        circle_marker_a937a12f35dac1de7c0d0dc9573805c4.bindPopup(popup_d41ebabfb94257ec8c358e99080c2a39)
+        ;
+
+        
+    
+    
+            var circle_marker_bb582e8f1fc1e48df3582f95a9931673 = L.circleMarker(
+                [-9.75201, -47.22369],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 6.723999999999999, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_5543f18dcb780f9f295abcb6d2779b6c = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_a7fab8ecf4eb234d2e015fc8671b3564 = $(`<div id="html_a7fab8ecf4eb234d2e015fc8671b3564" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7520, -47.2237<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 33.62 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_5543f18dcb780f9f295abcb6d2779b6c.setContent(html_a7fab8ecf4eb234d2e015fc8671b3564);
+            
+        
+
+        circle_marker_bb582e8f1fc1e48df3582f95a9931673.bindPopup(popup_5543f18dcb780f9f295abcb6d2779b6c)
+        ;
+
+        
+    
+    
+            var circle_marker_c099c8700e839c1a126638749b013712 = L.circleMarker(
+                [-9.74701, -47.21354],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_b4c0414ae19e1032c5db5e94df880b06 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_ceac6fdd97dcea2c94620031dc0055e1 = $(`<div id="html_ceac6fdd97dcea2c94620031dc0055e1" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7470, -47.2135<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 13.93 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_b4c0414ae19e1032c5db5e94df880b06.setContent(html_ceac6fdd97dcea2c94620031dc0055e1);
+            
+        
+
+        circle_marker_c099c8700e839c1a126638749b013712.bindPopup(popup_b4c0414ae19e1032c5db5e94df880b06)
+        ;
+
+        
+    
+    
+            var circle_marker_7f6589ab23a774a974495bb28739f8dc = L.circleMarker(
+                [-9.74646, -47.20997],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_1eac08be3c828319c9c88a88033c8ca2 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_db2676c2f6acd39406d79d5bcab44842 = $(`<div id="html_db2676c2f6acd39406d79d5bcab44842" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7465, -47.2100<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 10.85 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_1eac08be3c828319c9c88a88033c8ca2.setContent(html_db2676c2f6acd39406d79d5bcab44842);
+            
+        
+
+        circle_marker_7f6589ab23a774a974495bb28739f8dc.bindPopup(popup_1eac08be3c828319c9c88a88033c8ca2)
+        ;
+
+        
+    
+    
+            var circle_marker_055b061aa9d735e7c577c36c289d2109 = L.circleMarker(
+                [-9.74588, -47.22829],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_b1fc2c7a6c51d0c8a57881dff12d0f05 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_bf35c2995043ef8edc63da739484323a = $(`<div id="html_bf35c2995043ef8edc63da739484323a" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7459, -47.2283<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 5.76 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_b1fc2c7a6c51d0c8a57881dff12d0f05.setContent(html_bf35c2995043ef8edc63da739484323a);
+            
+        
+
+        circle_marker_055b061aa9d735e7c577c36c289d2109.bindPopup(popup_b1fc2c7a6c51d0c8a57881dff12d0f05)
+        ;
+
+        
+    
+    
+            var circle_marker_9379adb61414810111d697bc10731fe0 = L.circleMarker(
+                [-9.74533, -47.22474],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_973d6f2967b544732c334e090bd2d92a = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_5509d73a4c0a8dff469c1b2d7e0876d5 = $(`<div id="html_5509d73a4c0a8dff469c1b2d7e0876d5" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7453, -47.2247<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 9.65 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.7%<br>                 • Suspeito: 99.3%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_973d6f2967b544732c334e090bd2d92a.setContent(html_5509d73a4c0a8dff469c1b2d7e0876d5);
+            
+        
+
+        circle_marker_9379adb61414810111d697bc10731fe0.bindPopup(popup_973d6f2967b544732c334e090bd2d92a)
+        ;
+
+        
+    
+    
+            var circle_marker_a696487cfa751f2a7a3abb95b4e3b659 = L.circleMarker(
+                [-9.74478, -47.22119],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_c93635345a26032b01655f5d237f1a6d = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_a003b497b5fb62fe4aa2e60324aac7da = $(`<div id="html_a003b497b5fb62fe4aa2e60324aac7da" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7448, -47.2212<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 9.65 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 2.9%<br>                 • Suspeito: 97.1%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_c93635345a26032b01655f5d237f1a6d.setContent(html_a003b497b5fb62fe4aa2e60324aac7da);
+            
+        
+
+        circle_marker_a696487cfa751f2a7a3abb95b4e3b659.bindPopup(popup_c93635345a26032b01655f5d237f1a6d)
+        ;
+
+        
+    
+    
+            var circle_marker_0ff98867e3c022c2250893577ce167ab = L.circleMarker(
+                [-9.74257, -47.20694],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_f9dc08b5ccdb836e830012a0c3bc63b6 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_2e9ab5afb4c7a9ae06687767d6cdd376 = $(`<div id="html_2e9ab5afb4c7a9ae06687767d6cdd376" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7426, -47.2069<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 4.51 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.5%<br>                 • Suspeito: 99.5%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_f9dc08b5ccdb836e830012a0c3bc63b6.setContent(html_2e9ab5afb4c7a9ae06687767d6cdd376);
+            
+        
+
+        circle_marker_0ff98867e3c022c2250893577ce167ab.bindPopup(popup_f9dc08b5ccdb836e830012a0c3bc63b6)
+        ;
+
+        
+    
+    
+            var circle_marker_8ed19a449031fadf5fa74a30349092ab = L.circleMarker(
+                [-9.74201, -47.20338],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_44014d786aeb520d19a6e2373ac00171 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_83e3176218db276db5e9aa6f1c017fb0 = $(`<div id="html_83e3176218db276db5e9aa6f1c017fb0" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.7420, -47.2034<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 8.99 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_44014d786aeb520d19a6e2373ac00171.setContent(html_83e3176218db276db5e9aa6f1c017fb0);
+            
+        
+
+        circle_marker_8ed19a449031fadf5fa74a30349092ab.bindPopup(popup_44014d786aeb520d19a6e2373ac00171)
+        ;
+
+        
+    
+    
+            var circle_marker_bfaaa2d18374cd207b802f37f8d2ea31 = L.circleMarker(
+                [-9.66327, -47.3292],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_ef1800369faa54a50304b8795a26a528 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_b6a85d0bb656e358879acd924a812d76 = $(`<div id="html_b6a85d0bb656e358879acd924a812d76" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.6633, -47.3292<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 4.89 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_ef1800369faa54a50304b8795a26a528.setContent(html_b6a85d0bb656e358879acd924a812d76);
+            
+        
+
+        circle_marker_bfaaa2d18374cd207b802f37f8d2ea31.bindPopup(popup_ef1800369faa54a50304b8795a26a528)
+        ;
+
+        
+    
+    
+            var circle_marker_7b789c8412144b709897a1d7f66147c0 = L.circleMarker(
+                [-9.52358, -47.48183],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_448fe946c9f5ccb715d806621167aa7f = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_ce3517a758744e5213abd43b38fa8fd1 = $(`<div id="html_ce3517a758744e5213abd43b38fa8fd1" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5236, -47.4818<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 16.06 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 1.2%<br>                 • Suspeito: 98.8%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_448fe946c9f5ccb715d806621167aa7f.setContent(html_ce3517a758744e5213abd43b38fa8fd1);
+            
+        
+
+        circle_marker_7b789c8412144b709897a1d7f66147c0.bindPopup(popup_448fe946c9f5ccb715d806621167aa7f)
+        ;
+
+        
+    
+    
+            var circle_marker_8e21819f4336a71e8817a58a1dbf83da = L.circleMarker(
+                [-9.51442, -47.48448],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_578b1ab51f4050ad00ae384a33a8f0d3 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_096835fbda17c7660c49498c4ee71dff = $(`<div id="html_096835fbda17c7660c49498c4ee71dff" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5144, -47.4845<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 11.39 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.7%<br>                 • Suspeito: 99.3%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_578b1ab51f4050ad00ae384a33a8f0d3.setContent(html_096835fbda17c7660c49498c4ee71dff);
+            
+        
+
+        circle_marker_8e21819f4336a71e8817a58a1dbf83da.bindPopup(popup_578b1ab51f4050ad00ae384a33a8f0d3)
+        ;
+
+        
+    
+    
+            var circle_marker_d2504be68447429d84c69fb42b3216de = L.circleMarker(
+                [-9.51388, -47.48094],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_484e8502997c3c9439e0c04c973a1b3a = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_beebcfd479d1be12b9270da1c43399f4 = $(`<div id="html_beebcfd479d1be12b9270da1c43399f4" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5139, -47.4809<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 9.25 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.8%<br>                 • Suspeito: 99.2%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_484e8502997c3c9439e0c04c973a1b3a.setContent(html_beebcfd479d1be12b9270da1c43399f4);
+            
+        
+
+        circle_marker_d2504be68447429d84c69fb42b3216de.bindPopup(popup_484e8502997c3c9439e0c04c973a1b3a)
+        ;
+
+        
+    
+    
+            var circle_marker_d894c03708e370b0b3391505d8a6f7b8 = L.circleMarker(
+                [-9.45971, -47.59412],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_a45cb9e7bf119c74f135643e33ee889a = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_090db4192249230cdeeb12a877a5733a = $(`<div id="html_090db4192249230cdeeb12a877a5733a" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.4597, -47.5941<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 11.51 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.8%<br>                 • Suspeito: 99.2%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_a45cb9e7bf119c74f135643e33ee889a.setContent(html_090db4192249230cdeeb12a877a5733a);
+            
+        
+
+        circle_marker_d894c03708e370b0b3391505d8a6f7b8.bindPopup(popup_a45cb9e7bf119c74f135643e33ee889a)
+        ;
+
+        
+    
+    
+            var circle_marker_23725d167c011b536013ef418c327472 = L.circleMarker(
+                [-9.45639, -47.59464],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_6c2fc8e7c6f1894be79d697b6add1bfe = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_29bbd9fa5c09050a863a5b6a8396b5cd = $(`<div id="html_29bbd9fa5c09050a863a5b6a8396b5cd" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.4564, -47.5946<br>                 <b>Data:</b> 2025-11-16 1643<br>                 <b>FRP:</b> 5.43 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.5%<br>                 • Suspeito: 99.5%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_6c2fc8e7c6f1894be79d697b6add1bfe.setContent(html_29bbd9fa5c09050a863a5b6a8396b5cd);
+            
+        
+
+        circle_marker_23725d167c011b536013ef418c327472.bindPopup(popup_6c2fc8e7c6f1894be79d697b6add1bfe)
+        ;
+
+        
+    
+    
+            var circle_marker_b176ddc24ca5f2c46af9460cb504935f = L.circleMarker(
+                [-9.51838, -47.27216],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_fc2cc39fab42206ccba2e42d881c835b = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_3ff157b80c14dffa4987c1379afc69f0 = $(`<div id="html_3ff157b80c14dffa4987c1379afc69f0" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5184, -47.2722<br>                 <b>Data:</b> 2025-11-17 349<br>                 <b>FRP:</b> 0.63 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_fc2cc39fab42206ccba2e42d881c835b.setContent(html_3ff157b80c14dffa4987c1379afc69f0);
+            
+        
+
+        circle_marker_b176ddc24ca5f2c46af9460cb504935f.bindPopup(popup_fc2cc39fab42206ccba2e42d881c835b)
+        ;
+
+        
+    
+    
+            var circle_marker_147279b94b4375eeb20e886edbe1113d = L.circleMarker(
+                [-9.51289, -47.2711],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_5a3438dec29798b38c41bef65d4c927d = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_1fb082ecb68b31f64969b3fda1c61d57 = $(`<div id="html_1fb082ecb68b31f64969b3fda1c61d57" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5129, -47.2711<br>                 <b>Data:</b> 2025-11-17 349<br>                 <b>FRP:</b> 3.09 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_5a3438dec29798b38c41bef65d4c927d.setContent(html_1fb082ecb68b31f64969b3fda1c61d57);
+            
+        
+
+        circle_marker_147279b94b4375eeb20e886edbe1113d.bindPopup(popup_5a3438dec29798b38c41bef65d4c927d)
+        ;
+
+        
+    
+    
+            var circle_marker_d890c2614ea83af0700e551318c9f54f = L.circleMarker(
+                [-9.56739, -47.37114],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_2af66e8e5a324a806d704e2989f31ab0 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_810490def01b59fbff9ece8384c32a93 = $(`<div id="html_810490def01b59fbff9ece8384c32a93" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5674, -47.3711<br>                 <b>Data:</b> 2025-11-17 1626<br>                 <b>FRP:</b> 10.49 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_2af66e8e5a324a806d704e2989f31ab0.setContent(html_810490def01b59fbff9ece8384c32a93);
+            
+        
+
+        circle_marker_d890c2614ea83af0700e551318c9f54f.bindPopup(popup_2af66e8e5a324a806d704e2989f31ab0)
+        ;
+
+        
+    
+    
+            var circle_marker_ac4693667eea28f4620ba1da739e71ef = L.circleMarker(
+                [-9.51508, -47.46282],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_65f580db831c178aa3267c6c01f458f2 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_43b7a81985bd3dc47753d6e067e89dc7 = $(`<div id="html_43b7a81985bd3dc47753d6e067e89dc7" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5151, -47.4628<br>                 <b>Data:</b> 2025-11-17 1626<br>                 <b>FRP:</b> 7.44 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_65f580db831c178aa3267c6c01f458f2.setContent(html_43b7a81985bd3dc47753d6e067e89dc7);
+            
+        
+
+        circle_marker_ac4693667eea28f4620ba1da739e71ef.bindPopup(popup_65f580db831c178aa3267c6c01f458f2)
+        ;
+
+        
+    
+    
+            var circle_marker_0b497eea46ade2de635bee8077e4bccd = L.circleMarker(
+                [-9.51195, -47.46804],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_60f10fda63bf609b3eee23aa17686ddb = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_b9c022f7ee2a174e213fa285585527c1 = $(`<div id="html_b9c022f7ee2a174e213fa285585527c1" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5120, -47.4680<br>                 <b>Data:</b> 2025-11-17 1626<br>                 <b>FRP:</b> 5.31 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_60f10fda63bf609b3eee23aa17686ddb.setContent(html_b9c022f7ee2a174e213fa285585527c1);
+            
+        
+
+        circle_marker_0b497eea46ade2de635bee8077e4bccd.bindPopup(popup_60f10fda63bf609b3eee23aa17686ddb)
+        ;
+
+        
+    
+    
+            var circle_marker_06701571cbbabe31bc43f792cacd3ce5 = L.circleMarker(
+                [-9.5113, -47.46338],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_83817fb469c7e29ccfeb7d7824bab055 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_2479252b4b7240a89c48d1413448a723 = $(`<div id="html_2479252b4b7240a89c48d1413448a723" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5113, -47.4634<br>                 <b>Data:</b> 2025-11-17 1626<br>                 <b>FRP:</b> 6.06 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_83817fb469c7e29ccfeb7d7824bab055.setContent(html_2479252b4b7240a89c48d1413448a723);
+            
+        
+
+        circle_marker_06701571cbbabe31bc43f792cacd3ce5.bindPopup(popup_83817fb469c7e29ccfeb7d7824bab055)
+        ;
+
+        
+    
+    
+            var circle_marker_e920d12799ed88d3d07366fdaaff7e75 = L.circleMarker(
+                [-9.39335, -47.77385],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_2bc53c4488954300f5383eb5640c3b8c = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_2fd0ad2f62f51f27ca5970e0bf779a62 = $(`<div id="html_2fd0ad2f62f51f27ca5970e0bf779a62" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.3933, -47.7739<br>                 <b>Data:</b> 2025-11-17 1626<br>                 <b>FRP:</b> 18.48 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.4%<br>                 • Suspeito: 99.6%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_2bc53c4488954300f5383eb5640c3b8c.setContent(html_2fd0ad2f62f51f27ca5970e0bf779a62);
+            
+        
+
+        circle_marker_e920d12799ed88d3d07366fdaaff7e75.bindPopup(popup_2bc53c4488954300f5383eb5640c3b8c)
+        ;
+
+        
+    
+    
+            var circle_marker_d77d837f02564b1311500a65d767f676 = L.circleMarker(
+                [-10.10175, -47.88948],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_de9697307f1972df2063f1767a0f9c03 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_2de11b735d10b3aa6d21f69bf7b7b47e = $(`<div id="html_2de11b735d10b3aa6d21f69bf7b7b47e" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.1017, -47.8895<br>                 <b>Data:</b> 2025-11-19 453<br>                 <b>FRP:</b> 3.00 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_de9697307f1972df2063f1767a0f9c03.setContent(html_2de11b735d10b3aa6d21f69bf7b7b47e);
+            
+        
+
+        circle_marker_d77d837f02564b1311500a65d767f676.bindPopup(popup_de9697307f1972df2063f1767a0f9c03)
+        ;
+
+        
+    
+    
+            var circle_marker_8622dcfdef2fed63fe9aa1cab33badcb = L.circleMarker(
+                [-10.09813, -47.88498],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_57e2a8e69b139a1bdd1c4bc1072db10c = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_58d956e7e7b63f560b3e13f3b12951da = $(`<div id="html_58d956e7e7b63f560b3e13f3b12951da" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.0981, -47.8850<br>                 <b>Data:</b> 2025-11-19 453<br>                 <b>FRP:</b> 3.00 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_57e2a8e69b139a1bdd1c4bc1072db10c.setContent(html_58d956e7e7b63f560b3e13f3b12951da);
+            
+        
+
+        circle_marker_8622dcfdef2fed63fe9aa1cab33badcb.bindPopup(popup_57e2a8e69b139a1bdd1c4bc1072db10c)
+        ;
+
+        
+    
+    
+            var circle_marker_51ec2b342a7d46e1d1d009143bfe5f7b = L.circleMarker(
+                [-10.09757, -47.8889],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_2192d68e72c149c2c34308aa63d94cc4 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_eb1eb72a921b4be8e11795d7b7294807 = $(`<div id="html_eb1eb72a921b4be8e11795d7b7294807" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.0976, -47.8889<br>                 <b>Data:</b> 2025-11-19 453<br>                 <b>FRP:</b> 3.00 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_2192d68e72c149c2c34308aa63d94cc4.setContent(html_eb1eb72a921b4be8e11795d7b7294807);
+            
+        
+
+        circle_marker_51ec2b342a7d46e1d1d009143bfe5f7b.bindPopup(popup_2192d68e72c149c2c34308aa63d94cc4)
+        ;
+
+        
+    
+    
+            var circle_marker_e03c431cc166b010049b322dee0753a0 = L.circleMarker(
+                [-10.06871, -47.91243],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_5b7ba0d8083a6d2ae3cd35c30a656ae0 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_6c871b01f6074950116e440c7aeff4f0 = $(`<div id="html_6c871b01f6074950116e440c7aeff4f0" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.0687, -47.9124<br>                 <b>Data:</b> 2025-11-19 453<br>                 <b>FRP:</b> 1.89 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_5b7ba0d8083a6d2ae3cd35c30a656ae0.setContent(html_6c871b01f6074950116e440c7aeff4f0);
+            
+        
+
+        circle_marker_e03c431cc166b010049b322dee0753a0.bindPopup(popup_5b7ba0d8083a6d2ae3cd35c30a656ae0)
+        ;
+
+        
+    
+    
+            var circle_marker_25bffde1f79dd0ad304e6ad563cab86d = L.circleMarker(
+                [-10.06817, -47.91621],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_e324f16ab20d4c370ee5535e2f1ba988 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_4fc5faeeccbf0cc87324f9f99fad0a82 = $(`<div id="html_4fc5faeeccbf0cc87324f9f99fad0a82" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.0682, -47.9162<br>                 <b>Data:</b> 2025-11-19 453<br>                 <b>FRP:</b> 1.89 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_e324f16ab20d4c370ee5535e2f1ba988.setContent(html_4fc5faeeccbf0cc87324f9f99fad0a82);
+            
+        
+
+        circle_marker_25bffde1f79dd0ad304e6ad563cab86d.bindPopup(popup_e324f16ab20d4c370ee5535e2f1ba988)
+        ;
+
+        
+    
+    
+            var circle_marker_310fedfd55776bdc36f27eae899c64d5 = L.circleMarker(
+                [-10.06508, -47.90798],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_9405ee1558c017aba37fe433dfed8285 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_cd60f4e927cbc34844eca4d030a3b139 = $(`<div id="html_cd60f4e927cbc34844eca4d030a3b139" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.0651, -47.9080<br>                 <b>Data:</b> 2025-11-19 453<br>                 <b>FRP:</b> 1.92 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_9405ee1558c017aba37fe433dfed8285.setContent(html_cd60f4e927cbc34844eca4d030a3b139);
+            
+        
+
+        circle_marker_310fedfd55776bdc36f27eae899c64d5.bindPopup(popup_9405ee1558c017aba37fe433dfed8285)
+        ;
+
+        
+    
+    
+            var circle_marker_7533bc1082fee4c25d11fac7bf3143db = L.circleMarker(
+                [-10.06455, -47.91175],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_765a1ee96e78e546c870f7c231a82602 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_a0548dd920b0c35a0d2c1704e1833316 = $(`<div id="html_a0548dd920b0c35a0d2c1704e1833316" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.0646, -47.9117<br>                 <b>Data:</b> 2025-11-19 453<br>                 <b>FRP:</b> 2.42 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_765a1ee96e78e546c870f7c231a82602.setContent(html_a0548dd920b0c35a0d2c1704e1833316);
+            
+        
+
+        circle_marker_7533bc1082fee4c25d11fac7bf3143db.bindPopup(popup_765a1ee96e78e546c870f7c231a82602)
+        ;
+
+        
+    
+    
+            var circle_marker_43922af58b7f4a0bc2a6c77d32ece98d = L.circleMarker(
+                [-10.06092, -47.90733],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_770f1ce49577c9b82899711d9ed066ca = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_f2b57d2e31d6d7e21e59837d51657d0f = $(`<div id="html_f2b57d2e31d6d7e21e59837d51657d0f" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.0609, -47.9073<br>                 <b>Data:</b> 2025-11-19 453<br>                 <b>FRP:</b> 1.92 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_770f1ce49577c9b82899711d9ed066ca.setContent(html_f2b57d2e31d6d7e21e59837d51657d0f);
+            
+        
+
+        circle_marker_43922af58b7f4a0bc2a6c77d32ece98d.bindPopup(popup_770f1ce49577c9b82899711d9ed066ca)
+        ;
+
+        
+    
+    
+            var circle_marker_395ac5314e39b1e76d7acc599639323c = L.circleMarker(
+                [-9.85287, -47.87392],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_d8ea4538a88b7a0b99e3ccab92229e28 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_5777de9b8022b634d30c7d7bed6ad789 = $(`<div id="html_5777de9b8022b634d30c7d7bed6ad789" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8529, -47.8739<br>                 <b>Data:</b> 2025-11-19 1548<br>                 <b>FRP:</b> 13.71 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_d8ea4538a88b7a0b99e3ccab92229e28.setContent(html_5777de9b8022b634d30c7d7bed6ad789);
+            
+        
+
+        circle_marker_395ac5314e39b1e76d7acc599639323c.bindPopup(popup_d8ea4538a88b7a0b99e3ccab92229e28)
+        ;
+
+        
+    
+    
+            var circle_marker_b4fd493f94f832dd0e38062a632bfc2e = L.circleMarker(
+                [-9.84825, -47.8744],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_876a6dade575f0e1370d3fc6bcb3f9c7 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_5b7b14e7f2b6e976e1f43a5d5be22449 = $(`<div id="html_5b7b14e7f2b6e976e1f43a5d5be22449" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8483, -47.8744<br>                 <b>Data:</b> 2025-11-19 1548<br>                 <b>FRP:</b> 19.68 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.8%<br>                 • Suspeito: 99.2%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_876a6dade575f0e1370d3fc6bcb3f9c7.setContent(html_5b7b14e7f2b6e976e1f43a5d5be22449);
+            
+        
+
+        circle_marker_b4fd493f94f832dd0e38062a632bfc2e.bindPopup(popup_876a6dade575f0e1370d3fc6bcb3f9c7)
+        ;
+
+        
+    
+    
+            var circle_marker_17ada88087b059870052a26080f35a83 = L.circleMarker(
+                [-10.16318, -47.51869],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_23897a138668a2477e6504bebc90ef92 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_30bd50c4a795bc24193c2befb4b3aad3 = $(`<div id="html_30bd50c4a795bc24193c2befb4b3aad3" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.1632, -47.5187<br>                 <b>Data:</b> 2025-11-21 1649<br>                 <b>FRP:</b> 2.86 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_23897a138668a2477e6504bebc90ef92.setContent(html_30bd50c4a795bc24193c2befb4b3aad3);
+            
+        
+
+        circle_marker_17ada88087b059870052a26080f35a83.bindPopup(popup_23897a138668a2477e6504bebc90ef92)
+        ;
+
+        
+    
+    
+            var circle_marker_d827a0a2e88c9c233317941cbafdd11a = L.circleMarker(
+                [-10.15973, -47.51926],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_125e419337b3e5665a43dc65b5d1190b = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_c5c8b3844efa667b9ec368c662459667 = $(`<div id="html_c5c8b3844efa667b9ec368c662459667" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -10.1597, -47.5193<br>                 <b>Data:</b> 2025-11-21 1649<br>                 <b>FRP:</b> 4.51 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_125e419337b3e5665a43dc65b5d1190b.setContent(html_c5c8b3844efa667b9ec368c662459667);
+            
+        
+
+        circle_marker_d827a0a2e88c9c233317941cbafdd11a.bindPopup(popup_125e419337b3e5665a43dc65b5d1190b)
+        ;
+
+        
+    
+    
+            var circle_marker_6a756b80092921c5cde6f6ec6cde2883 = L.circleMarker(
+                [-9.91857, -47.41605],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_596119665e121a4cf7e1f0a51845c10e = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_3e71fc90b0837410761eefb3d38a6971 = $(`<div id="html_3e71fc90b0837410761eefb3d38a6971" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.9186, -47.4160<br>                 <b>Data:</b> 2025-11-21 1649<br>                 <b>FRP:</b> 4.43 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_596119665e121a4cf7e1f0a51845c10e.setContent(html_3e71fc90b0837410761eefb3d38a6971);
+            
+        
+
+        circle_marker_6a756b80092921c5cde6f6ec6cde2883.bindPopup(popup_596119665e121a4cf7e1f0a51845c10e)
+        ;
+
+        
+    
+    
+            var circle_marker_69b9aa4899f262540287bb0f694ceaf5 = L.circleMarker(
+                [-9.82293, -47.62096],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_b39dafdd8ec20e1718f60ab3f59179a9 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_e62f3bd29454048adafbf1dc635e7fcf = $(`<div id="html_e62f3bd29454048adafbf1dc635e7fcf" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.8229, -47.6210<br>                 <b>Data:</b> 2025-11-21 1649<br>                 <b>FRP:</b> 7.20 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.8%<br>                 • Suspeito: 99.2%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_b39dafdd8ec20e1718f60ab3f59179a9.setContent(html_e62f3bd29454048adafbf1dc635e7fcf);
+            
+        
+
+        circle_marker_69b9aa4899f262540287bb0f694ceaf5.bindPopup(popup_b39dafdd8ec20e1718f60ab3f59179a9)
+        ;
+
+        
+    
+    
+            var circle_marker_2f061151a68aa5dbb7b5e1160fbb9ab9 = L.circleMarker(
+                [-9.5543, -47.77506],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_1a0f7d9416808f334e63d3c9f4045b18 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_bfc2215bf2a413ab45573c58cc81bcbf = $(`<div id="html_bfc2215bf2a413ab45573c58cc81bcbf" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5543, -47.7751<br>                 <b>Data:</b> 2025-11-23 518<br>                 <b>FRP:</b> 2.20 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_1a0f7d9416808f334e63d3c9f4045b18.setContent(html_bfc2215bf2a413ab45573c58cc81bcbf);
+            
+        
+
+        circle_marker_2f061151a68aa5dbb7b5e1160fbb9ab9.bindPopup(popup_1a0f7d9416808f334e63d3c9f4045b18)
+        ;
+
+        
+    
+    
+            var circle_marker_c6fa4d48ff42e7b399b681cc90439d56 = L.circleMarker(
+                [-9.54792, -47.77427],
+                {"bubblingMouseEvents": true, "color": "orange", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "orange", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 5, "stroke": true, "weight": 2}
+            ).addTo(feature_group_c509f2be18217d94f8a9c3d77bbf8622);
+        
+    
+        var popup_22bb025fa4a31f38dd43aaeee7779444 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_f0627ebc71deafd3a034d8b1c95e283c = $(`<div id="html_f0627ebc71deafd3a034d8b1c95e283c" style="width: 100.0%; height: 100.0%;">             <div style="width: 200px;">                 <h4 style="margin: 0; color: orange;">                     ❓ SUSPEITO                 </h4>                 <hr style="margin: 5px 0;">                 <b>Localização:</b> -9.5479, -47.7743<br>                 <b>Data:</b> 2025-11-23 518<br>                 <b>FRP:</b> 0.52 MW<br>                 <hr style="margin: 5px 0;">                 <b>Probabilidade:</b><br>                 • Confiável: 0.6%<br>                 • Suspeito: 99.4%<br>                 <b>Certeza:</b> Alta             </div>         </div>`)[0];
+                popup_22bb025fa4a31f38dd43aaeee7779444.setContent(html_f0627ebc71deafd3a034d8b1c95e283c);
+            
+        
+
+        circle_marker_c6fa4d48ff42e7b399b681cc90439d56.bindPopup(popup_22bb025fa4a31f38dd43aaeee7779444)
+        ;
+
+        
+    
+    
+            feature_group_c509f2be18217d94f8a9c3d77bbf8622.addTo(map_73eb3e2ec5b0669559a8f532059464e0);
+        
+    
+            var layer_control_45ef17802ff2e66d49de36221f88b15c_layers = {
+                base_layers : {
+                    "openstreetmap" : tile_layer_2a2f5b48486989c2b41db535fe38ec77,
+                    "Sat\u00e9lite" : tile_layer_b7460025ec5548c6393c9b2eb87f6668,
+                },
+                overlays :  {
+                    "Confi\u00e1veis (Fogo Real)" : feature_group_9fb631402014f25a266c7cce489c6b59,
+                    "Suspeitos (Falso Positivo)" : feature_group_c509f2be18217d94f8a9c3d77bbf8622,
+                },
+            };
+            let layer_control_45ef17802ff2e66d49de36221f88b15c = L.control.layers(
+                layer_control_45ef17802ff2e66d49de36221f88b15c_layers.base_layers,
+                layer_control_45ef17802ff2e66d49de36221f88b15c_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_73eb3e2ec5b0669559a8f532059464e0);
+
+        
+</script>
+</html>

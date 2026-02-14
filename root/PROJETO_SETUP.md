@@ -1,258 +1,141 @@
-# Configuração do Projeto: Detecção e Propagação de Incêndios Florestais com ML
+# Configuracao do Projeto: Classificacao Automatica de Focos de Incendio
 
-**Data de Início**: 11 de novembro de 2025
-**Responsável**: Desenvolvedor em Manaus, AM
-**Instituição**: Programa de Pós-Graduação (Mestrado)
-
----
-
-## 1. Definição da Área de Interesse (AOI)
-
-### AOI Selecionada: MATOPIBA
-
-#### 📍 Localização Geográfica
-- **Estados Abrangidos**: Maranhão, Tocantins, Piauí e Bahia
-- **Área Total**: ~73 milhões de hectares
-- **Biomas Predominantes**: Floresta Amazônica (norte), Cerrado, Formações Herbáceas
-
-#### 📊 Justificativa Técnico-Científica
-
-**1. Atividade de Incêndios**
-- Aumento de 58% em área queimada em 2024 vs 2023
-- Entre 50-200+ eventos de fogo por ano (suficiente para treinamento ML)
-- Mix de incêndios: naturais, acidentais e para limpeza de área
-
-**2. Infraestrutura de Dados**
-- Cobertura excelente de satélites multissensoriais:
-  - GOES-16 ABI (detecção em tempo quase real)
-  - Landsat 7/8 (30m, histórico longo)
-  - Sentinel-2 (10m, resolução alta)
-  - MODIS (1km, resolução térmica)
-  - VIIRS (375m, detecção de fogo)
-
-**3. Pesquisa Anterior**
-- Modelos ML já desenvolvidos para a região (80% de acurácia comprovada)
-- Comunidade ativa de pesquisa
-- Dados validados disponíveis
-
-**4. Diversidade de Condições**
-- Gradiente de cobertura vegetal (floresta → cerrado → agricultura)
-- Variabilidade topográfica
-- Múltiplas causas de incêndio (relevante para espúrios vs. reais)
-
-#### 🗓️ Período de Análise
-- **Período Completo**: 2022-2024 (3 anos)
-- **Foco Principal**: Estações secas (julho-outubro) de cada ano
-- **Validação**: Comparação entre períodos para robustez temporal
+**Autor**: Andrey Ruben Ribeiro Bessa
+**Instituicao**: PPGEE - Universidade Federal do Amazonas (UFAM)
+**Orientador**: Prof. D.Sc. Celso Barbosa Carvalho
+**Coorientador**: Prof. D.Sc. Andre Chaves Mendes
+**Defesa prevista**: Agosto de 2026
 
 ---
 
-## 2. Objetivos do Projeto
+## 1. Area de Estudo: MATOPIBA
+
+### Localizacao
+- **Estados**: Maranhao, Tocantins, Piaui e Bahia
+- **Area Total**: ~73 milhoes de hectares
+- **Bioma predominante**: Cerrado (91% da extensao)
+- **Periodo de analise**: 2022-2024
+
+### Justificativa
+- Elevada incidencia de queimadas (naturais e antropicas)
+- Fronteira agricola com uso do fogo para manejo
+- Cobertura excelente de dados satelitais
+- Diversidade de condicoes (gradiente Amazonia-Cerrado-Caatinga)
+
+---
+
+## 2. Objetivo do Projeto
 
 ### Objetivo Geral
-Desenvolver modelos de machine learning para:
-1. **Detecção de Hotspots Espúrios** (Module A): Classificar detecções de fogo como reais ou falsos positivos
-2. **Predição de Propagação D+1** (Module B): Prever a expansão de incêndios para o dia seguinte
+Desenvolver e validar um sistema de classificacao automatica de focos de incendio do FIRMS, capaz de distinguir deteccoes reais de espurias, utilizando integracao de dados satelitais e meteorologicos com tecnicas de aprendizado de maquina.
 
-### Objetivos Específicos
-
-#### Module A: Detecção de Espúrios
-- Implementar classifier baseline com regras heurísticas
-- Treinar modelo GBM (LightGBM/XGBoost) com ~80% de acurácia
-- Refinar com CNN (EfficientNet) em patches Sentinel-2 (opcional)
-- Validar com splits espacial/temporal
-- Gerar dataset anotado: `hotspots_labeled.gpkg`
-
-#### Module B: Propagação D+1
-- Implementar baseline: autômato celular logístico
-- Treinar modelos em dados históricos MCD64A1
-- Opcional: ConvLSTM para padrões espaço-temporais
-- Gerar mapas de probabilidade D+1: `prob_spread_d1.tif`
-- Criar zonas de risco: `risk_zones.shp`
+### Objetivos Especificos
+1. Pipeline de ingestao e processamento de dados multifonte (FIRMS, MCD64A1, Sentinel-2, ERA5)
+2. Metodologia de weak labeling (FIRMS vs MCD64A1, janela +-15 dias)
+3. Extracao de 20+ features (temporais, meteorologicas, vegetacao, espaciais)
+4. Treinamento e comparacao de modelos (LightGBM, XGBoost, baselines) com otimizacao Optuna
+5. Validacao espacial (leave-one-state-out) e temporal (treino 2022-2023, teste 2024)
+6. Analise de importancia de features e interpretabilidade
 
 ---
 
-## 3. Arquitetura Geral do Projeto
+## 3. Arquitetura do Sistema
 
-### Fluxo de Dados
+### Pipeline em 4 Etapas
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    CAMADA DE INGESTÃO                       │
-├─────────────────────────────────────────────────────────────┤
-│  FIRMS (NASA)          │  MCD64A1 (MODIS)                   │
-│  Sentinel-2 (ESA)      │  SRTM/DEM (NASA)                   │
-│  MapBiomas             │  ERA5/GFS (NOAA)                   │
-│  OSM/Overpass (POI)    │                                    │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│                  MODULE A: ESPÚRIOS                         │
-├─────────────────────────────────────────────────────────────┤
-│ A.1: Persistência      │ A.5: CNN (opcional)               │
-│ A.2: Weak Labeling     │ A.6: Validação PR-curve           │
-│ A.3: Feature Eng.      │ A.7: Output (.gpkg + .csv)        │
-│ A.4: GBM Baseline      │                                    │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│                MODULE B: PROPAGAÇÃO D+1                     │
-├─────────────────────────────────────────────────────────────┤
-│ B.1: Grid Regular      │ B.5: ConvLSTM (opcional)          │
-│ B.2: Labeling          │ B.6: Validação IoU                │
-│ B.3: Feature Extract.  │ B.7: Output (.tif + .shp)         │
-│ B.4: CA Logístico      │                                    │
-└─────────────────────────────────────────────────────────────┘
-                            ↓
-┌─────────────────────────────────────────────────────────────┐
-│               VISUALIZAÇÃO & RELATÓRIO                      │
-├─────────────────────────────────────────────────────────────┤
-│  QGIS Maps  │  PR-Curves  │  IoU Plots  │  Thesis Figures  │
-└─────────────────────────────────────────────────────────────┘
+Etapa 1: Ingestao
+  FIRMS (375m) + MCD64A1 (500m) + Sentinel-2 (10m) + ERA5 (0.25 graus)
+      |
+Etapa 2: Processamento
+  Limpeza, reprojecao, mosaico, interpolacao, NDVI
+      |
+Etapa 3: Feature Engineering
+  Weak labeling + extracao de 20+ features
+  Dataset: 9.198 amostras balanceadas (4.599/4.599)
+      |
+Etapa 4: Modelagem
+  9 modelos (Dummy, LR, SVM, DT, RF, LightGBM, XGBoost + Optuna)
+  Validacao espacial e temporal
+  Analise estatistica (Bootstrap, McNemar, Wilcoxon)
 ```
 
-### Tecnologias Principais
+### Tecnologias
 
 | Categoria | Ferramentas |
 |-----------|------------|
-| **Processamento Geoespacial** | GeoPandas, Rasterio, RioXarray, Shapely, PyProj |
-| **Análise Dados** | Pandas, NumPy, Xarray, Dask |
-| **Machine Learning** | Scikit-learn, LightGBM, XGBoost |
-| **Deep Learning** | PyTorch, TorchVision (opcional) |
-| **Cloud Computing** | Google Earth Engine, Google Cloud Storage |
-| **Visualização** | QGIS, Matplotlib, Folium |
-| **Utilities** | TQDM, Requests |
+| Geoespacial | geopandas, rasterio, rioxarray, shapely, pyproj, xarray |
+| ML | scikit-learn, lightgbm, xgboost, optuna |
+| Analise | pandas, numpy, scipy |
+| Visualizacao | matplotlib, folium |
+| Dados externos | Google Earth Engine, NASA Earthdata, Copernicus CDS |
 
 ---
 
-## 4. Cronograma de Implementação (Fase 1: Desenvolvimento)
+## 4. Fontes de Dados
 
-### Etapa 1: Ingestão de Dados
-**Objetivo**: Coleta e processamento inicial de dados
-
-**Tarefas**:
-1. Definir AOI exata (shapefile MATOPIBA)
-2. Baixar FIRMS hotspots (2022-2024)
-3. Baixar MCD64A1 burned area (2022-2024)
-4. Baixar Sentinel-2 composite (dry season)
-5. Baixar SRTM/DEM
-6. Baixar dados de POI (OSM)
-7. Gerar métricas de persistência
-8. **Output**: CSV com classificação inicial de espúrios
-
-### Etapa 2: Module A - Detecção de Espúrios
-**Objetivo**: Classificador baseline com 80% acurácia
-
-**Tarefas**:
-1. Implementar weak labeling (regras heurísticas)
-2. Feature engineering: tabular + patch-based
-3. Treinar GBM (LightGBM/XGBoost)
-4. Validação: PR-curves, splits espacial/temporal
-5. Opcional: Fine-tuning EfficientNet
-6. Otimizar threshold de precisão/recall
-7. **Output**: `hotspots_labeled.gpkg` + CSV com scores
-
-### Etapa 3: Module B - Propagação D+1
-**Objetivo**: Predição de expansão de fogo
-
-**Tarefas**:
-1. Criar grid regular (250-500m cells)
-2. Labeling: MCD64A1 BurnDate
-3. Feature extraction: meteorologia, topografia, combustível
-4. Treinar CA logístico baseline
-5. Opcional: ConvLSTM
-6. Validação: IoU, Brier score
-7. **Output**: `prob_spread_d1.tif` + `risk_zones.shp`
-
-### Etapa 4: Visualização & Dissertação
-**Objetivo**: Figuras, mapas e documento final
-
-**Tarefas**:
-1. Gerar mapas QGIS
-2. Criar PR-curves e IoU plots
-3. Calcular estatísticas por município/bioma
-4. Escrever capítulos de resultados
-5. Gerar tabelas comparativas
-6. **Output**: Documento de tese completo com figuras
+| Fonte | Resolucao | Temporal | Uso |
+|-------|-----------|----------|-----|
+| FIRMS (NASA) | 375m (VIIRS) | Diario | Focos de incendio ativo |
+| MCD64A1 (MODIS) | 500m | Mensal | Area queimada (rotulagem) |
+| Sentinel-2 (ESA) | 10m | 5 dias | NDVI (vegetacao) |
+| ERA5 (ECMWF) | 0.25 graus | Horario | Meteorologia (5 variaveis) |
 
 ---
 
-## 5. Fontes de Dados
+## 5. Resultados Alcancados
 
-### 5.1 Detecção Ativa de Fogo
+| Modelo | Acuracia | ROC-AUC | PR-AUC |
+|--------|----------|---------|--------|
+| DummyClassifier | 70% | 50% | 35% |
+| Limiar FIRMS | 72% | 64% | 55% |
+| Regressao Logistica | 75% | 78% | 72% |
+| SVM (RBF) | 77% | 80% | 74% |
+| Random Forest | 79% | 83% | 78% |
+| **LightGBM (proposto)** | **82%** | **86%** | **81%** |
+| XGBoost | 81% | 85% | 80% |
 
-| Fonte | Resolução | Cobertura | Acesso | Descrição |
-|-------|-----------|-----------|--------|-----------|
-| **FIRMS (NASA)** | 1km | Global, daily | NASA Earthdata | Hotspots MODIS/VIIRS, 2000-presente |
-| **INPE Queimadas** | 1km | Brasil, daily | Terrabrasilis | 9 sensores, metadados ricos |
-
-**Acessar em**: https://terrabrasilis.dpi.inpe.br/queimadas/bdqueimadas/
-
-### 5.2 Área Queimada
-
-| Fonte | Resolução | Temporal | Acesso | Descrição |
-|-------|-----------|----------|--------|-----------|
-| **MCD64A1** | 500m | Mensal | Google Earth Engine | MODIS burned area (2000-2024) |
-| **MapBiomas Fire** | 30m | Anual | Google Earth Engine | Neural nets, 1985-2020, por bioma |
-
-### 5.3 Dados Auxiliares
-
-| Tipo | Fonte | Resolução | Acesso |
-|------|-------|-----------|--------|
-| **Imagem Óptica** | Sentinel-2 | 10m | Google Earth Engine, ESA |
-| **Imagem Óptica** | Landsat 8 | 30m | Google Earth Engine, USGS |
-| **Elevação** | SRTM/DEM | 30m | Google Earth Engine, NASA |
-| **Cobertura Terra** | MapBiomas | 30m | Google Earth Engine, Brasil |
-| **Meteorologia** | ERA5 | 0.25° | Copernicus CDS |
-| **POI** | OpenStreetMap | Variável | Overpass API |
+- **Validacao espacial**: Variacao < 4pp entre 4 estados
+- **Validacao temporal**: Degradacao ~5pp (concept drift)
+- **Impacto operacional**: 87% reducao de falsos positivos (recall 84%)
 
 ---
 
-## 6. Próximas Etapas: Credenciais e Setup
+## 6. Credenciais Necessarias
 
-### ✅ Status: Pronto para Configuração de Credenciais
+| Servico | Uso | Status |
+|---------|-----|--------|
+| Google Earth Engine | Sentinel-2, MCD64A1 | Configurado |
+| NASA Earthdata | FIRMS, MCD64A1 | Configurado |
+| Copernicus CDS | ERA5 | Configurado |
 
-**A ser feito**:
-1. [ ] Criar conta Google Earth Engine
-2. [ ] Criar conta NASA Earthdata
-3. [ ] Criar conta Copernicus CDS
-4. [ ] Configurar Python environment (conda/venv)
-5. [ ] Instalar bibliotecas geoespaciais
-6. [ ] Testar conexões às APIs
+Detalhes: `docs/setup/SETUP_AMBIENTE.md`
 
 ---
 
-## 7. Métricas de Sucesso
+## 7. Ambiente Python
 
-### Module A: Detecção de Espúrios
-- **PR-AUC** ≥ 0.80
-- **Precision @ Recall=0.90** > 0.75
-- **Spatial consistency**: IoU entre regiões > 0.70
-- **Temporal generalization**: Acurácia 2024 vs treino 2022-2023 > 0.75
-
-### Module B: Propagação D+1
-- **IoU (Intersection over Union)** ≥ 0.60
-- **Brier Score** < 0.25
-- **Spatial correlation** com queimadas reais > 0.65
-- **Temporal validation**: Consistent predictions across seasons
+```bash
+conda create -n fireml python=3.10 -y
+conda activate fireml
+conda install -c conda-forge geopandas rasterio rioxarray pyproj shapely xarray dask -y
+pip install scikit-learn lightgbm xgboost optuna tqdm scipy
+```
 
 ---
 
-## 8. Referências e Recursos
+## 8. Cronograma Ate a Defesa (Mar-Ago 2026)
 
-### Datasets Utilizados
-- INPE FIRM hotspots: https://terrabrasilis.dpi.inpe.br/queimadas/bdqueimadas/
-- MapBiomas: https://mapbiomas.org/
-- Google Earth Engine: https://earthengine.google.com/
-
-### Documentação Técnica
-- Sentinela-2: https://sentinel.esa.int/web/sentinel/user-guides/sentinel-2-msi/overview
-- MODIS: https://lpdaac.usgs.gov/products/mcd64a1v006/
-- ERA5: https://cds.climate.copernicus.eu/
-
-### Literatura Chave
-- [Seções adicionadas conforme pesquisa avança]
+| Atividade | Mar | Abr | Mai | Jun | Jul | Ago |
+|-----------|-----|-----|-----|-----|-----|-----|
+| Refinamento classificador | X | X | | | | |
+| Analise de erros e robustez | X | X | | | | |
+| Encadeamento espaco-temporal | | X | X | X | | |
+| Avaliacao propagacao | | | X | X | | |
+| Consolidacao resultados | | | | X | X | |
+| Redacao final | | | | | X | X |
+| Defesa | | | | | | X |
 
 ---
 
-**Última Atualização**: 11 de novembro de 2025
+**Ultima Atualizacao**: 12 de fevereiro de 2026

@@ -1,203 +1,189 @@
-# Projeto Mestrado - Índice e Navegação
+# Projeto Mestrado - Indice e Navegacao
 
-Estrutura organizada do projeto de Machine Learning para detecção e propagação de fogo em MATOPIBA.
+Classificacao Automatica de Focos de Incendio com Integracao de Dados Satelitais e Meteorologicos.
 
 ---
 
-## Estrutura de Diretórios
+## Estrutura de Diretorios
 
 ```
 Projeto Mestrado/
-├── docs/                          (Toda documentação)
-│   ├── setup/                     (Configuração do ambiente)
-│   ├── etapas/                    (Fases 1-4 do pipeline)
-│   ├── modulos/                   (Módulo A, B, etc)
-│   └── visual/                    (Guias visuais e demos)
-├── src/                           (Código-fonte)
-│   ├── preprocessing/             (Etapas 1-2)
-│   ├── models/                    (Etapas 3-4, Módulo A)
-│   └── propagation/               (Módulo B - futuro)
-├── data/                          (Dados)
-│   ├── raw/                       (Downloads)
-│   ├── processed/                 (Processado)
-│   └── models/                    (Modelos treinados)
-└── INDEX.md                       (Este arquivo)
+├── src/                           (Codigo-fonte Python)
+│   ├── data_ingest/               (Etapa 1: Download)
+│   ├── preprocessing/             (Etapas 2-3: Processamento + Features)
+│   ├── models/                    (Etapa 4: ML + Validacao)
+│   └── visualization/             (Mapas)
+├── data/                          (Dados brutos, processados, modelos)
+├── Dissertacao/                   (LaTeX da dissertacao)
+├── docs/                          (Documentacao tecnica)
+├── root/                          (Documentacao raiz - este diretorio)
+└── obsoleto/                      (Arquivos descontinuados)
 ```
 
 ---
 
-## Como Começar
+## Documentacao Raiz (root/)
 
-### 1. Configuração do Ambiente
-Comece aqui se for a primeira execução:
+| Arquivo | Descricao |
+|---------|-----------|
+| README.md | Visao geral e inicio rapido |
+| INDEX.md | Este indice |
+| CLAUDE.md | Guia para Claude Code |
+| STATUS_PROJETO.md | Status atual do projeto |
+| PROJETO_SETUP.md | Definicao e configuracao do projeto |
+| ESTRUTURA_PROJETO.md | Arvore completa de arquivos |
 
-- [SETUP_AMBIENTE.md](docs/setup/SETUP_AMBIENTE.md) - Guia completo de setup
-- [SETUP_COMPLETO.md](docs/setup/SETUP_COMPLETO.md) - Checklist de configuração
-- [CREDENCIAIS_SETUP.md](docs/setup/CREDENCIAIS_SETUP.md) - APIs e credenciais
+---
 
-### 2. Entender o Projeto
-Visão geral do projeto:
+## Executar o Pipeline
 
-- [PROJETO_SETUP.md](PROJETO_SETUP.md) - Definição geral do projeto
-- [STATUS_PROJETO.md](STATUS_PROJETO.md) - Status atual e progresso
-- [CLAUDE.md](CLAUDE.md) - Guia para Claude Code
+### Etapa 1: Ingestao de Dados
+Guia: `docs/etapas/ETAPA1_INGESTAO.md`
+```bash
+python src/data_ingest/run_all_downloads.py
+```
 
-### 3. Executar as Etapas (Sequencial)
-
-#### Etapa 1: Ingestão de Dados
-[docs/etapas/ETAPA1_INGESTAO.md](docs/etapas/ETAPA1_INGESTAO.md)
-
-Baixa dados de múltiplas fontes (FIRMS, MCD64A1, Sentinel-2, ERA5)
-
+### Etapa 2: Processamento
+Guia: `docs/etapas/ETAPA2_PROCESSAMENTO.md`
 ```bash
 python src/preprocessing/run_all_preprocessing.py
 ```
 
-#### Etapa 2: Processamento
-[docs/etapas/ETAPA2_PROCESSAMENTO.md](docs/etapas/ETAPA2_PROCESSAMENTO.md)
-
-Processa e limpa dados crus
-
-```bash
-python src/preprocessing/run_etapa2.py
-```
-
-#### Etapa 3: Feature Engineering + Training
-[docs/etapas/ETAPA3_FEATURE_ENGINEERING.md](docs/etapas/ETAPA3_FEATURE_ENGINEERING.md)
-
-Cria features e treina modelos (com GPU se disponível)
-
+### Etapa 3: Feature Engineering + Weak Labeling
+Guia: `docs/etapas/ETAPA3_FEATURE_ENGINEERING.md`
 ```bash
 python src/preprocessing/run_etapa3.py
 ```
 
-#### Etapa 4: Validação
-[docs/etapas/ETAPA4_VALIDACAO.md](docs/etapas/ETAPA4_VALIDACAO.md)
-
-Valida modelos (espacial, temporal, confiança)
-
+### Etapa 4: Treinamento + Validacao
+Guia: `docs/etapas/ETAPA4_VALIDACAO.md`
 ```bash
 python src/models/run_etapa4.py
 ```
 
 ---
 
-## Módulo A: Identificação de Áreas Espúrias
+## Usar Modulo A (Inferencia)
 
-Sistema completo de detecção de hotspots falsos em produção.
+Classificar novos focos de incendio como reais ou espurios:
 
-### Documentação
-- [docs/modulos/MODULO_A_INFERENCIA.md](docs/modulos/MODULO_A_INFERENCIA.md) - Guia técnico
-- [docs/modulos/MODULO_A_QUICK_START.txt](docs/modulos/MODULO_A_QUICK_START.txt) - Quick start
-
-### Usar em Produção
 ```bash
-python src/models/predict_module_a.py --input seus_hotspots.csv
+python src/models/predict_module_a.py --input novos_focos.csv
 ```
 
-### Visualizar Sistema
-Veja como funciona visualmente:
+Documentacao: `docs/modulos/MODULO_A_INFERENCIA.md`
+Quick start: `docs/modulos/MODULO_A_QUICK_START.txt`
 
-- [docs/visual/LEIA-ME-VISUAL.txt](docs/visual/LEIA-ME-VISUAL.txt) - Guia visual rápido
-- [docs/visual/VISUAL_GUIDE_MODULO_A.md](docs/visual/VISUAL_GUIDE_MODULO_A.md) - Guia visual detalhado
-- [docs/visual/RESUMO_VISUAL_MODULO_A.txt](docs/visual/RESUMO_VISUAL_MODULO_A.txt) - Resumo visual
-- [docs/visual/demo_modulo_a.ipynb](docs/visual/demo_modulo_a.ipynb) - Jupyter com gráficos
+---
 
-Execute o notebook:
+## Analise Estatistica
+
 ```bash
-jupyter lab docs/visual/demo_modulo_a.ipynb
+python src/models/statistical_analysis.py
 ```
 
----
-
-## Changelogs
-
-Histórico de mudanças por etapa:
-
-- [docs/etapas/CHANGELOG_ETAPA2.md](docs/etapas/CHANGELOG_ETAPA2.md) - Etapa 2
-- [docs/etapas/CHANGELOG_ETAPA3.md](docs/etapas/CHANGELOG_ETAPA3.md) - Etapa 3
-- [docs/etapas/CHANGELOG_MODULO_A_INFERENCIA.md](docs/etapas/CHANGELOG_MODULO_A_INFERENCIA.md) - Módulo A
+Inclui: Bootstrap CI (1000 reamostras), teste de McNemar, teste de Wilcoxon.
 
 ---
 
-## Estrutura de Código
+## Codigo-fonte (src/)
 
-### src/preprocessing/
-Scripts de Etapas 1-2 (ingestão e processamento)
+### data_ingest/ - Download de dados
+| Script | Funcao |
+|--------|--------|
+| download_firms.py | Focos de incendio (API FIRMS) |
+| download_mcd64a1.py | Area queimada (NASA) |
+| download_sentinel2.py | Imagens opticas (ESA) |
+| download_era5.py | Meteorologia (CDS/ECMWF) |
+| run_all_downloads.py | Master script |
 
-- `run_all_preprocessing.py` - Master script
-- `process_firms.py` - Processa hotspots FIRMS
-- `process_mcd64a1.py` - Processa área queimada
-- `process_sentinel2.py` - Processa vegetação
-- `process_era5.py` - Processa meteorologia
-- `data_loader.py` - Carregador de dados
-- `weak_labeling.py` - Geração de labels
-- `feature_engineering.py` - Extração de features
-- `run_etapa3.py` - Master script Etapa 3
+### preprocessing/ - Processamento e features
+| Script | Funcao |
+|--------|--------|
+| process_firms.py | Limpeza, filtragem, persistencia |
+| process_mcd64a1.py | Mosaico, reprojecao, GeoTIFF |
+| process_sentinel2.py | NDVI, cloud masking |
+| process_era5.py | Interpolacao espacial/temporal |
+| weak_labeling.py | Rotulagem FIRMS vs MCD64A1 (+-15 dias) |
+| feature_engineering.py | Extracao de 20+ features |
+| validate_weak_labels.py | Validacao Cohen's Kappa (200 amostras) |
+| data_loader.py | Carregamento unificado |
+| run_etapa3.py | Master script |
 
-### src/models/
-Scripts de Etapas 3-4 (ML e validação)
+### models/ - Treinamento e validacao
+| Script | Funcao |
+|--------|--------|
+| train_module_a.py | 9 modelos (Dummy, LR, SVM, DT, RF, LightGBM, XGBoost + Optuna) |
+| evaluate_module_a.py | Validacao espacial e temporal |
+| statistical_analysis.py | Bootstrap, McNemar, Wilcoxon |
+| predict_module_a.py | Inferencia em novos dados |
+| run_module_a_pipeline.py | Pipeline completo |
+| run_etapa4.py | Master script |
 
-- `train_module_a.py` - Treinamento de modelos
-- `evaluate_module_a.py` - Validação espacial/temporal
-- `predict_module_a.py` - Inferência em novos dados
-- `run_etapa4.py` - Master script Etapa 4
-- `run_module_a_pipeline.py` - Pipeline completo
-
-### data/
-Estrutura de dados
-
-- `raw/` - Dados brutos (downloads)
-- `processed/` - Dados processados
-  - `module_a/` - Features e labels
-  - `module_b/` - Grid features
-- `models/` - Modelos treinados
-  - `module_a/` - Modelos, validação, predições
-
----
-
-## Próximas Ações
-
-### Imediato
-1. Setup completo: `docs/setup/SETUP_AMBIENTE.md`
-2. Entender projeto: `PROJETO_SETUP.md`
-3. Executar Etapa 1: `docs/etapas/ETAPA1_INGESTAO.md`
-
-### Curto Prazo
-1. Executar Etapas 2-4 em sequência
-2. Visualizar Módulo A: `docs/visual/demo_modulo_a.ipynb`
-3. Usar em produção: `python src/models/predict_module_a.py --input dados.csv`
-
-### Longo Prazo
-1. Módulo B (propagação D+1)
-2. Integração de módulos
-3. Escrita de tese
+### visualization/ - Mapas
+| Script | Funcao |
+|--------|--------|
+| generate_matopiba_map_v2.py | Mapa da regiao MATOPIBA |
+| map_hotspots.py | Mapa interativo de focos |
 
 ---
 
-## Referência Rápida
+## Documentacao Tecnica (docs/)
+
+### Configuracao
+| Arquivo | Descricao |
+|---------|-----------|
+| docs/setup/SETUP_AMBIENTE.md | Configuracao completa do ambiente |
+| docs/setup/SETUP_COMPLETO.md | Checklist de configuracao |
+
+### Etapas do Pipeline
+| Arquivo | Descricao |
+|---------|-----------|
+| docs/etapas/ETAPA1_INGESTAO.md | Guia da Etapa 1 |
+| docs/etapas/ETAPA2_PROCESSAMENTO.md | Guia da Etapa 2 |
+| docs/etapas/ETAPA3_FEATURE_ENGINEERING.md | Guia da Etapa 3 |
+| docs/etapas/ETAPA4_VALIDACAO.md | Guia da Etapa 4 |
+
+### Modulo A
+| Arquivo | Descricao |
+|---------|-----------|
+| docs/modulos/MODULO_A_INFERENCIA.md | Documentacao completa |
+| docs/modulos/MODULO_A_QUICK_START.txt | Inicio rapido |
+
+### Visualizacoes
+| Arquivo | Descricao |
+|---------|-----------|
+| docs/visual/demo_modulo_a.ipynb | Jupyter notebook com graficos |
+| docs/visual/*.png | Graficos do projeto |
+
+---
+
+## Dissertacao
+
+Localizada em `Dissertacao/PPGEE-MODELO-DOUTORADO-MESTRADO-Latex-v4/capitulos/`:
+
+| Capitulo | Conteudo |
+|----------|---------|
+| 0-capa_n_contra.tex | Capa, resumo (PT/EN), agradecimentos |
+| 1-introducao.tex | Problema, objetivos, justificativa, contribuicoes |
+| 2-fundamentos.tex | Sensoriamento remoto, ML, trabalhos relacionados |
+| 3-metodologia.tex | Pipeline, weak labeling, features, algoritmos, validacao |
+| 4-experimentos.tex | Resultados, validacao, analise erros, baselines |
+| 5-conclusao.tex | Conclusoes, limitacoes, proximos passos, cronograma |
+
+---
+
+## Referencia Rapida
 
 | Necessidade | Arquivo |
-|-----------|---------|
-| Setup inicial | docs/setup/SETUP_AMBIENTE.md |
-| Visão geral | PROJETO_SETUP.md |
-| Status | STATUS_PROJETO.md |
-| Guia Claude | CLAUDE.md |
-| Etapa 1 | docs/etapas/ETAPA1_INGESTAO.md |
-| Etapa 2 | docs/etapas/ETAPA2_PROCESSAMENTO.md |
-| Etapa 3 | docs/etapas/ETAPA3_FEATURE_ENGINEERING.md |
-| Etapa 4 | docs/etapas/ETAPA4_VALIDACAO.md |
-| Módulo A | docs/modulos/MODULO_A_INFERENCIA.md |
-| Visual | docs/visual/LEIA-ME-VISUAL.txt |
-| Demo | docs/visual/demo_modulo_a.ipynb |
+|-------------|---------|
+| Visao geral | root/README.md |
+| Status atual | root/STATUS_PROJETO.md |
+| Configurar ambiente | docs/setup/SETUP_AMBIENTE.md |
+| Executar pipeline | docs/etapas/ETAPA1-4 |
+| Usar Modulo A | docs/modulos/MODULO_A_INFERENCIA.md |
+| Dissertacao | Dissertacao/.../capitulos/ |
 
 ---
 
-## Arquivo Descontinuado
-
-[ARQUIVOS_DESCONTINUADOS.md](ARQUIVOS_DESCONTINUADOS.md) - Lista de arquivos não mais utilizados
-
----
-
-**Última atualização**: 11 de novembro de 2025
-**Status**: Estrutura organizada e pronta para uso
+**Ultima atualizacao**: 12 de fevereiro de 2026

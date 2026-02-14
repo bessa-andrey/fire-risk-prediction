@@ -15,15 +15,19 @@ MATOPIBA is a Brazilian agricultural frontier spanning 4 states (Maranhão, Toca
 
 ## Models
 
-The pipeline trains and compares 5 classifiers:
+The pipeline trains and compares 9 classifiers (5 baselines + 2 default + 2 optimized):
 
 | Model | Type | Description |
 |-------|------|-------------|
+| DummyClassifier | Baseline | Majority class (reference) |
 | Logistic Regression | Baseline | Linear classifier |
+| SVM-RBF | Baseline | Support Vector Machine with RBF kernel |
 | Decision Tree | Baseline | Single tree |
 | Random Forest | Baseline | Ensemble of trees |
-| LightGBM | Gradient Boosting | GPU-accelerated |
-| XGBoost | Gradient Boosting | GPU-accelerated |
+| LightGBM | Gradient Boosting | GPU-accelerated (default params) |
+| XGBoost | Gradient Boosting | GPU-accelerated (default params) |
+| LightGBM (Optuna) | Gradient Boosting | Hyperparameters optimized via Optuna (100 trials, TPE) |
+| XGBoost (Optuna) | Gradient Boosting | Hyperparameters optimized via Optuna (100 trials, TPE) |
 
 ## Features
 
@@ -46,9 +50,7 @@ conda create -n fire-risk python=3.10
 conda activate fire-risk
 
 # Install dependencies
-pip install pandas numpy scikit-learn lightgbm xgboost
-pip install geopandas rasterio netCDF4
-pip install earthengine-api cdsapi
+pip install -r requirements.txt
 ```
 
 ### API Credentials Required
@@ -64,7 +66,7 @@ See [docs/setup/CREDENCIAIS_SETUP.md](docs/setup/CREDENCIAIS_SETUP.md) for setup
 ### Full Pipeline
 
 ```bash
-# 1. Download data
+# 1. Download data (FIRMS 2019-2024, ERA5, Sentinel-2, MCD64A1)
 python src/data_ingest/run_all_downloads.py
 
 # 2. Process data
@@ -73,11 +75,17 @@ python src/preprocessing/run_all_preprocessing.py
 # 3. Feature engineering + weak labeling
 python src/preprocessing/run_etapa3.py
 
-# 4. Train models
+# 4. Train models (all 9 classifiers + Optuna optimization)
 python src/models/train_module_a.py
 
-# 5. Evaluate
+# 5. Evaluate (spatial + temporal validation)
 python src/models/evaluate_module_a.py
+
+# 6. Statistical analysis (bootstrap CI, McNemar, Wilcoxon)
+python src/models/statistical_analysis.py
+
+# 7. Weak label validation (select 200 samples for manual review)
+python src/preprocessing/validate_weak_labels.py
 ```
 
 ### Inference Only
@@ -91,8 +99,13 @@ python src/models/predict_module_a.py --input hotspots.csv --output predictions.
 ```
 src/
 ├── data_ingest/        # Download scripts (FIRMS, ERA5, Sentinel-2, MCD64A1)
-├── preprocessing/      # Data processing and feature engineering
+├── preprocessing/      # Data processing, feature engineering, weak labeling
+│   └── validate_weak_labels.py  # Manual validation (200 samples, Cohen's Kappa)
 ├── models/             # Training, evaluation, and inference
+│   ├── train_module_a.py        # 9 classifiers + Optuna optimization
+│   ├── evaluate_module_a.py     # Spatial + temporal validation
+│   ├── statistical_analysis.py  # Bootstrap CI, McNemar, Wilcoxon tests
+│   └── predict_module_a.py      # Real-time inference
 └── visualization/      # Mapping and plotting
 
 docs/
@@ -107,16 +120,13 @@ data/                   # (not in git)
 └── models/             # Trained models (.pkl)
 ```
 
-## Performance
+## Statistical Rigor
 
-Module A (Spurious Hotspot Detection):
-
-| Metric | Score |
-|--------|-------|
-| Accuracy | ~82% |
-| ROC-AUC | ~0.86 |
-| PR-AUC | ~0.81 |
-| False Positive Reduction | ~87% |
+All model comparisons include:
+- **Bootstrap confidence intervals** (1000 resamples, 95% CI)
+- **McNemar's test** for pairwise classifier comparison
+- **Wilcoxon signed-rank test** on 5-fold CV scores
+- **Cohen's Kappa** for weak label quality validation
 
 ## Documentation
 

@@ -1,0 +1,76 @@
+[Mestrado] Orientação - Andrey Bessa
+Mon, Dec 22, 2025
+
+Summary:
+
+A orientação de Andrey Bessa focou na identificação de áreas de risco e na predição de incêndios, utilizando dados da NASA. Ele apresentou a estrutura de seu trabalho e a metodologia, que inclui modelos de machine learning como LightGBM e XGBoost. Durante a discussão, Andrey detalhou sua pesquisa sobre a validação de hotspots, mencionando que, ao incorporar cálculos probabilísticos, a precisão das predições aumentou significativamente. A complexidade na interpretação dos resultados em áreas com múltiplos hotspots foi um ponto destacado, assim como a necessidade de revisões em certos dados.
+
+Andre Mendes sugeriu que Andrey explorasse diferentes modelos e ajustasse parâmetros para otimizar os resultados. Ele recomendou a criação de um script em Python para facilitar testes com várias combinações de parâmetros, enfatizando a importância de justificar as escolhas feitas em relação aos modelos e parâmetros utilizados. Andrey também discutiu a evolução de seu modelo, que agora considera 20 variáveis, e a distribuição de pesos entre elas, resultando em melhorias na precisão das predições. A possibilidade de adotar redes neurais foi mencionada como uma alternativa para obter resultados ainda mais eficazes.
+
+A conversa também abordou a importância das contribuições da banca para o trabalho de Andrey, com Celso Carvalho e Andre Mendes ressaltando que a experiência prática é fundamental para ajustes nos parâmetros do projeto. A necessidade de persistir na busca por respostas de contatos na UFAM e o foco em pontos específicos para avançar no trabalho foram discutidos, encerrando a orientação com reflexões sobre a importância de um período de reflexão e fechamento de ciclos.
+
+
+Chapters & Topics:
+
+Atualizações sobre o Desenvolvimento do Projeto
+Andrey discute os avanços em seu projeto, incluindo a estruturação de um documento robusto e a montagem de uma apresentação para qualificação. Ele detalha que está utilizando modelos como LightGBM e XGBoost para suas análises, além de mencionar que a base de dados da NASA fornece informações essenciais para suas predições. Andre faz perguntas para esclarecer detalhes sobre o fluxo de trabalho e os dados utilizados.
+* Revisão de material e adequação de documentos.
+* Levantamento e comparação de modelos de aprendizado de máquina.
+* Análise de resultados e taxa de acerto de modelos.
+
+Análise de Hotspots e Validação de Incêndios
+Andrey explicou seu método de validação de hotspots, utilizando dados de quatro estados da região Matopiba, focando em incêndios entre 2022 e 2024. Ele comparou os resultados obtidos com o sistema FIRMS e o MCD64A1, ressaltando que a inclusão de cálculos probabilísticos aumentou a taxa de acerto em suas previsões.
+
+Discussão sobre Modelos e Justificativas em Análise de Dados
+Andre Mendes recomenda a Andrey que varie a taxa de treinamento e teste, sugerindo proporções como 80/20 ou 90/10. Ele enfatiza a importância de testar diferentes modelos e ajustar parâmetros para melhorar a precisão das previsões, além de justificar as escolhas feitas no relatório.
+
+Análise de Modelos e Ajustes de Dados
+Andrey Bessa detalhou a análise de modelos e a inclusão de novas variáveis para aprimorar a probabilidade de resultados. Ele explicou que, além das quatro colunas iniciais, utilizou 20 colunas, atribuindo pesos diferentes a fatores como temperatura e umidade, o que resultou em uma melhoria na precisão do modelo.
+* Discussão sobre eventos climáticos e suas consequências.
+
+Discussão sobre Modelos e Hiperparâmetros
+Andrey Bessa discutiu a eficácia de sua abordagem atual utilizando índices NDVI e expressou interesse em explorar redes neurais para melhorar os resultados. Celso Carvalho sugeriu o uso de frameworks como Optuna para otimização de hiperparâmetros e enfatizou a importância de justificar a escolha dos modelos utilizados.
+* Estratégias para otimização de hiperparâmetros.
+
+   Exploração de Modelos de Aprendizado de Máquina
+   Andre Mendes enfatiza que, ao invés de investir em infraestrutura cara, é mais vantajoso desenvolver modelos de aprendizado de máquina que sejam mais simples e econômicos. Ele cita uma empresa chinesa que alcançou resultados de 90% de eficácia com um custo muito menor, comparando com os bilhões gastos por grandes empresas. Mendes acredita que essa abordagem pode trazer um grande valor.
+
+Análise de Hotspots e Comparação de Dados
+Andrey demonstrou um sistema que identifica hotspots de incêndios, destacando a importância de dados em tempo real. Ele mencionou que, apesar de não ter acesso completo aos dados do painel do fogo, está conseguindo avançar com dados públicos. Andre sugeriu que Andrey comparasse os resultados do seu sistema com os dados do painel do fogo e do produto da NASA para enriquecer a análise.
+* Discussão sobre a utilização de dados do painel do fogo.
+
+Atualizações sobre Orientação e Qualificação
+Andrey informou que não agendará reuniões para janeiro, optando por atualizações via WhatsApp. Ele mencionou que sua qualificação foi remarcada para fevereiro, devido ao congestionamento de alunos. Celso confirmou que a defesa pode ocorrer em março, dependendo da situação.
+
+ Orientações e Contribuições para o Trabalho de Andrey
+ Celso Barbosa Carvalho encoraja Andrey Bessa, afirmando que a banca trará contribuições valiosas para seu trabalho. Andre Mendes complementa, ressaltando que a experiência prática é fundamental para entender e ajustar os mecanismos utilizados. Ele acredita que as sugestões da banca ajudarão Andrey a aprimorar seu projeto.
+* Contribuições da banca para o trabalho em andamento.
+* Importância da experiência prática em comparação com a teoria.
+* Desejos de boas festas e reflexões sobre o ano que passou.
+* Reflexão sobre o fechamento de ciclos pessoais e profissionais.
+
+Recordações de Enchentes no Rio
+Celso lembrou de uma enchente no Rio que os deixou presos em um viaduto, e Andre Mendes destacou a gravidade da situação, que levou à decretação de feriado. Andrey Bessa comentou sobre a criação de memes a partir do evento, enquanto Andre Mendes comparou a situação com chuvas em sua cidade atual, que, embora intensas, não geraram a mesma reação.
+
+
+Action Items:
+
+* Andrey Ruben Ribeiro Bessa irá revisar o material e verificar se está adequado em fevereiro.
+* Andrey Ruben Ribeiro Bessa irá levantar famílias de modelos e fazer variações dentro do mecanismo de treinamento.
+* Andrey Ruben Ribeiro Bessa irá utilizar o Optuna para ajudar na busca de hiperparâmetros.
+* Andrey Ruben Ribeiro Bessa vai prosseguir com os itens que já tem.
+* Andre Mendes deseja boas festas a todos os participantes.
+* Andrey Ruben Ribeiro Bessa irá pesquisar sobre os datasets do painel do fogo para compará-los com os resultados obtidos.
+
+
+Key Questions:
+
+* Quais são os resultados esperados ao utilizar diferentes modelos de aprendizado de máquina?
+* Como os dados do painel do fogo podem ser integrados ao modelo atual?
+* Como a experiência prática influencia o trabalho na área discutida?
+* Quais contribuições a banca pode trazer para o trabalho em andamento?
+
+
+Notepad:
+
+* No notes

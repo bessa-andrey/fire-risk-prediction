@@ -1,16 +1,22 @@
 # test_realtime.py
 """
-Script para testar o modelo com dados em tempo real.
+Script para testar o modelo com dados em tempo real ou historicos.
 
 Dado uma coordenada (lat, lon):
-1. Busca hotspots recentes da NASA FIRMS API
-2. Busca dados meteorológicos atuais da Open-Meteo API
+1. Busca hotspots da NASA FIRMS API (tenta multiplas fontes)
+2. Busca dados meteorologicos atuais da Open-Meteo API
 3. Combina os dados e testa no modelo treinado
 4. Gera mapa interativo com os resultados
 
+Modos de operacao:
+  - Tempo real: busca dados NRT da FIRMS (ultimos 10 dias)
+  - Demo: usa dados historicos do dataset local (sempre funciona)
+
 Uso:
     python src/models/test_realtime.py --lat -10.5 --lon -46.5
-    python src/models/test_realtime.py --lat -10.5 --lon -46.5 --radius 50
+    python src/models/test_realtime.py --lat -10.5 --lon -46.5 --radius 100
+    python src/models/test_realtime.py --lat -10.5 --lon -46.5 --demo
+    python src/models/test_realtime.py --demo
 """
 
 import requests
@@ -46,12 +52,24 @@ SCALER_PATH = BASE_DIR / 'data/models/module_a/scaler.pkl'
 LOGOS_DIR = BASE_DIR / 'logos'
 AREAS_ESPURIAS_PATH = BASE_DIR / 'data/areas_espurias.json'
 MATOPIBA_GEOJSON_PATH = BASE_DIR / 'data/matopiba_limites.geojson'
+DATASET_PATH = BASE_DIR / 'data/processed/training/module_a_balanced.csv'
+RAW_FIRMS_PATH = BASE_DIR / 'data/raw/firms_hotspots/firms_viirs_2022-2024.csv'
 
 # Features do modelo (mesma ordem do treinamento)
 FEATURE_COLS = [
     'brightness', 'confidence', 'frp', 'hotspot_count',
     'persistence_score', 'temperature', 'dewpoint',
     'wind_speed', 'precipitation', 'rh', 'drying_index'
+]
+
+# Fontes FIRMS para busca (tenta em ordem ate encontrar dados)
+FIRMS_SOURCES = [
+    ('VIIRS_NOAA20_NRT', 'VIIRS NOAA-20 (NRT)'),
+    ('VIIRS_SNPP_NRT', 'VIIRS Suomi-NPP (NRT)'),
+    ('VIIRS_NOAA21_NRT', 'VIIRS NOAA-21 (NRT)'),
+    ('MODIS_NRT', 'MODIS Terra/Aqua (NRT)'),
+    ('VIIRS_NOAA20_SP', 'VIIRS NOAA-20 (Standard)'),
+    ('VIIRS_SNPP_SP', 'VIIRS Suomi-NPP (Standard)'),
 ]
 
 
@@ -98,21 +116,25 @@ def load_matopiba_geojson():
 
 def get_firms_hotspots(lat, lon, radius_km=25, days=10):
     """
-    Busca hotspots recentes da NASA FIRMS API
+    Busca hotspots recentes da NASA FIRMS API, tentando multiplas fontes.
 
     Args:
         lat: Latitude central
         lon: Longitude central
         radius_km: Raio de busca em km
-        days: Dias para trás (máx 10 para NRT)
+        days: Dias para tras (max 10 para NRT)
 
     Returns:
-        DataFrame com hotspots ou None se não houver
+        DataFrame com hotspots ou None se nao houver
     """
     print(f"\n[1] Buscando hotspots FIRMS...")
     print(f"    Centro: ({lat}, {lon})")
     print(f"    Raio: {radius_km} km")
-    print(f"    Período: últimos {days} dias")
+    print(f"    Periodo: ultimos {days} dias")
+
+    if not FIRMS_MAP_KEY:
+        print("    ! FIRMS_MAP_KEY nao configurada no .env")
+        return None
 
     # Converter raio para graus (~111 km por grau)
     delta = radius_km / 111.0
@@ -123,28 +145,108 @@ def get_firms_hotspots(lat, lon, radius_km=25, days=10):
     south = lat - delta
     north = lat + delta
 
-    # API URL para VIIRS NOAA-20 (Near Real Time)
-    url = (
-        f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/"
-        f"{FIRMS_MAP_KEY}/VIIRS_NOAA20_NRT/"
-        f"{west},{south},{east},{north}/{days}"
-    )
+    all_hotspots = []
 
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
+    for source_id, source_name in FIRMS_SOURCES:
+        url = (
+            f"https://firms.modaps.eosdis.nasa.gov/api/area/csv/"
+            f"{FIRMS_MAP_KEY}/{source_id}/"
+            f"{west},{south},{east},{north}/{days}"
+        )
 
-        if 'latitude' in response.text:
-            df = pd.read_csv(StringIO(response.text))
-            print(f"    ✓ Encontrados {len(df)} hotspots!")
-            return df
-        else:
-            print(f"    ✗ Nenhum hotspot encontrado na área")
-            return None
+        try:
+            response = requests.get(url, timeout=30)
 
-    except Exception as e:
-        print(f"    ✗ Erro: {e}")
+            if response.status_code == 200 and 'latitude' in response.text:
+                df = pd.read_csv(StringIO(response.text))
+                print(f"    + {source_name}: {len(df)} hotspots")
+                all_hotspots.append(df)
+            else:
+                print(f"    - {source_name}: sem dados")
+
+        except Exception as e:
+            print(f"    - {source_name}: erro ({e})")
+
+    if not all_hotspots:
+        print(f"    ! Nenhum hotspot em nenhuma fonte FIRMS")
         return None
+
+    # Combinar todas as fontes e remover duplicatas
+    combined = pd.concat(all_hotspots, ignore_index=True)
+
+    # Remover duplicatas por coordenada + data/hora
+    if 'acq_date' in combined.columns and 'acq_time' in combined.columns:
+        combined = combined.drop_duplicates(
+            subset=['latitude', 'longitude', 'acq_date', 'acq_time'],
+            keep='first'
+        )
+
+    print(f"    Total (sem duplicatas): {len(combined)} hotspots")
+    return combined
+
+
+def get_demo_hotspots(lat, lon, radius_km=50, n_samples=50):
+    """
+    Carrega hotspots historicos do dataset local para demonstracao.
+    Filtra pela regiao de interesse (lat/lon + raio).
+
+    Args:
+        lat: Latitude central
+        lon: Longitude central
+        radius_km: Raio de busca em km
+        n_samples: Numero maximo de amostras
+
+    Returns:
+        DataFrame com hotspots do dataset ou None
+    """
+    print(f"\n[1] Carregando hotspots historicos (modo demo)...")
+
+    # Tentar o dataset balanceado primeiro
+    data_path = DATASET_PATH if DATASET_PATH.exists() else RAW_FIRMS_PATH
+
+    if not data_path.exists():
+        print(f"    ! Dataset nao encontrado: {data_path}")
+        return None
+
+    print(f"    Fonte: {data_path.name}")
+
+    df = pd.read_csv(data_path)
+
+    # Filtrar pela regiao se tiver lat/lon
+    if 'latitude' in df.columns and 'longitude' in df.columns:
+        delta = radius_km / 111.0
+        mask = (
+            (df['latitude'] >= lat - delta) &
+            (df['latitude'] <= lat + delta) &
+            (df['longitude'] >= lon - delta) &
+            (df['longitude'] <= lon + delta)
+        )
+        df_region = df[mask]
+
+        if len(df_region) == 0:
+            # Se nao tem dados na regiao exata, pegar os mais proximos
+            print(f"    ! Sem dados exatos na regiao. Buscando mais proximos...")
+            df['_dist'] = np.sqrt(
+                (df['latitude'] - lat)**2 + (df['longitude'] - lon)**2
+            )
+            df_region = df.nsmallest(n_samples, '_dist').drop(columns=['_dist'])
+
+        df = df_region
+
+    # Limitar amostras
+    if len(df) > n_samples:
+        df = df.sample(n=n_samples, random_state=42)
+
+    # Garantir colunas necessarias para o mapa
+    if 'acq_date' not in df.columns and 'acq_datetime' in df.columns:
+        df['acq_date'] = pd.to_datetime(df['acq_datetime']).dt.strftime('%Y-%m-%d')
+        df['acq_time'] = pd.to_datetime(df['acq_datetime']).dt.strftime('%H%M')
+
+    if 'bright_ti4' not in df.columns and 'brightness' in df.columns:
+        df['bright_ti4'] = df['brightness']
+
+    print(f"    Encontrados {len(df)} hotspots historicos na regiao")
+    return df
 
 
 def get_weather_data(lat, lon):
@@ -675,7 +777,7 @@ def create_map(center_lat, center_lon, radius_km, hotspots_df, results, weather)
 
     # Carregar logos como base64
     logo_files = [
-        ('ufam.png', 'UFAM'),
+        ('logo_ufam.png', 'UFAM'),
         ('ppge.png', 'PPGE'),
         ('politecnico de portalegre.png', 'IPPortalegre')
     ]
@@ -709,16 +811,48 @@ def create_map(center_lat, center_lon, radius_km, hotspots_df, results, weather)
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Testar modelo com dados em tempo real')
-    parser.add_argument('--lat', type=float, required=True, help='Latitude (ex: -10.5)')
-    parser.add_argument('--lon', type=float, required=True, help='Longitude (ex: -46.5)')
-    parser.add_argument('--radius', type=float, default=50, help='Raio de busca em km (default: 50)')
-    parser.add_argument('--days', type=int, default=10, help='Dias para buscar (max: 10)')
+    parser = argparse.ArgumentParser(
+        description='Testar modelo de classificacao de hotspots',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Exemplos:
+  # Tempo real (busca FIRMS API)
+  python src/models/test_realtime.py --lat -10.5 --lon -46.5
+  python src/models/test_realtime.py --lat -12.0 --lon -43.5 --radius 100
+
+  # Demo (dados historicos do dataset local - sempre funciona)
+  python src/models/test_realtime.py --demo
+  python src/models/test_realtime.py --lat -10.5 --lon -46.5 --demo
+
+  # Coordenadas uteis na MATOPIBA:
+  #   Tocantins (TO): --lat -10.5 --lon -48.3
+  #   Bahia (BA):     --lat -12.0 --lon -43.5
+  #   Maranhao (MA):  --lat -5.0  --lon -44.0
+  #   Piaui (PI):     --lat -8.0  --lon -43.0
+        """
+    )
+    parser.add_argument('--lat', type=float, default=-10.5,
+                        help='Latitude (default: -10.5 Tocantins)')
+    parser.add_argument('--lon', type=float, default=-46.5,
+                        help='Longitude (default: -46.5 Tocantins)')
+    parser.add_argument('--radius', type=float, default=50,
+                        help='Raio de busca em km (default: 50)')
+    parser.add_argument('--days', type=int, default=10,
+                        help='Dias para buscar NRT (max: 10)')
+    parser.add_argument('--demo', action='store_true',
+                        help='Usar dados historicos do dataset local')
+    parser.add_argument('--samples', type=int, default=50,
+                        help='Numero de amostras no modo demo (default: 50)')
+    parser.add_argument('--no-browser', action='store_true',
+                        help='Nao abrir mapa no navegador')
 
     args = parser.parse_args()
 
+    mode = "DEMO (dados historicos)" if args.demo else "TEMPO REAL (FIRMS API)"
+
     print("\n" + "="*70)
-    print("TESTE EM TEMPO REAL - MÓDULO A")
+    print(f"MODULO A - CLASSIFICACAO DE HOTSPOTS")
+    print(f"Modo: {mode}")
     print("="*70)
     print(f"Coordenadas: ({args.lat}, {args.lon})")
     print(f"Raio: {args.radius} km")
@@ -728,13 +862,22 @@ def main():
     print("\n[0] Carregando modelo...")
     try:
         model, scaler = load_model()
-        print("    ✓ Modelo carregado!")
+        print("    Modelo carregado!")
     except Exception as e:
-        print(f"    ✗ Erro ao carregar modelo: {e}")
+        print(f"    Erro ao carregar modelo: {e}")
         return
 
     # Buscar hotspots
-    hotspots = get_firms_hotspots(args.lat, args.lon, args.radius, args.days)
+    if args.demo:
+        hotspots = get_demo_hotspots(args.lat, args.lon, args.radius, args.samples)
+    else:
+        hotspots = get_firms_hotspots(args.lat, args.lon, args.radius, args.days)
+
+        # Fallback automatico para demo se NRT nao retornar dados
+        if hotspots is None or len(hotspots) == 0:
+            print("\n    Sem dados NRT. Ativando fallback para dados historicos...")
+            print("    (use --demo para ir direto ao modo demo)")
+            hotspots = get_demo_hotspots(args.lat, args.lon, args.radius, args.samples)
 
     # Buscar meteorologia
     weather = get_weather_data(args.lat, args.lon)
@@ -745,76 +888,58 @@ def main():
     print("="*70)
 
     if hotspots is None or len(hotspots) == 0:
-        print("\n⚠ Nenhum hotspot detectado na área nos últimos dias.")
-        print("  Isso pode significar:")
-        print("  - Não há focos de calor ativos na região")
-        print("  - A área está coberta por nuvens")
-        print("  - O satélite não passou pela região recentemente")
+        print("\n! Nenhum hotspot disponivel (nem NRT nem historico).")
+        print("  Verifique as coordenadas ou tente um raio maior.")
+        return
 
-        # Criar hotspot sintético para demonstração
-        print("\n[DEMO] Criando hotspot sintético para demonstração...")
-        demo_features = {
-            'brightness': 340.0,
-            'confidence': 70,
-            'frp': 25.0,
-            'hotspot_count': 1,
-            'persistence_score': 0.3,
-            **weather
-        }
-        result = predict_hotspot(model, scaler, demo_features)
+    # Processar cada hotspot
+    count_total = len(hotspots)
+    confiaveis = 0
+    suspeitos = 0
+    all_results = []
 
-        print(f"\n  Hotspot Sintético (valores médios):")
-        print(f"  ├─ Brightness: 340 K")
-        print(f"  ├─ FRP: 25 MW")
-        print(f"  ├─ Condições meteo: atuais da região")
-        print(f"  │")
-        print(f"  └─ PREDIÇÃO: {result['label']} ({result['prob_confiavel']*100:.1f}% confiável)")
-    else:
-        # Processar cada hotspot real
-        count_total = len(hotspots)
-        confiaveis = 0
-        suspeitos = 0
-        all_results = []  # Guardar resultados para o mapa
+    print(f"\n[3] Classificando {count_total} hotspots...\n")
 
-        print(f"\n[3] Classificando {count_total} hotspots...\n")
+    for idx, (_, row) in enumerate(hotspots.iterrows(), 1):
+        features = process_hotspot(row, weather, count_total)
+        result = predict_hotspot(model, scaler, features)
+        all_results.append(result)
 
-        for idx, (_, row) in enumerate(hotspots.iterrows(), 1):
-            features = process_hotspot(row, weather, count_total)
-            result = predict_hotspot(model, scaler, features)
-            all_results.append(result)
+        if result['prediction'] == 1:
+            confiaveis += 1
+        else:
+            suspeitos += 1
 
-            if result['prediction'] == 1:
-                confiaveis += 1
-            else:
-                suspeitos += 1
+        # Imprimir detalhes apenas para os primeiros 10
+        if idx <= 10:
+            status_ = "REAL" if result['prediction'] == 1 else "SUSP"
+            print(f"  [{status_}] #{idx:3d}  "
+                  f"({row['latitude']:.4f}, {row['longitude']:.4f})  "
+                  f"FRP={row.get('frp', row.get('bright_ti4', 'N/A'))}  "
+                  f"-> {result['label']} ({result['prob_confiavel']*100:.0f}%)")
 
-            status_ = "Quente" if result['prediction'] == 1 else "Frio"
+    if count_total > 10:
+        print(f"  ... e mais {count_total - 10} hotspots")
 
-            print(f"  {status_} Hotspot #{idx}")
-            print(f"     Localização: ({row['latitude']:.4f}, {row['longitude']:.4f})")
-            print(f"     Data: {row.get('acq_date', 'N/A')} {row.get('acq_time', '')}")
-            print(f"     FRP: {row.get('frp', 'N/A')} MW")
-            print(f"     → {result['label']} ({result['prob_confiavel']*100:.1f}% confiável, certeza {result['certeza']})")
-            print()
+    # Resumo
+    print(f"\n" + "-"*70)
+    print(f"RESUMO:")
+    print(f"  Confiaveis (fogo real):       {confiaveis:4d} ({confiaveis/count_total*100:.0f}%)")
+    print(f"  Suspeitos (falso positivo):   {suspeitos:4d} ({suspeitos/count_total*100:.0f}%)")
+    print(f"  Total:                        {count_total:4d}")
+    print("-"*70)
 
-        # Resumo
-        print("-"*70)
-        print(f"RESUMO:")
-        print(f"      Confiáveis (provavelmente fogo real): {confiaveis}")
-        print(f"      Suspeitos (possível falso positivo): {suspeitos}")
-        print("-"*70)
+    # Gerar mapa
+    map_file = create_map(
+        args.lat, args.lon, args.radius,
+        hotspots, all_results, weather
+    )
 
-        # Gerar mapa
-        map_file = create_map(
-            args.lat, args.lon, args.radius,
-            hotspots, all_results, weather
-        )
+    if map_file and not args.no_browser:
+        print(f"\n Abrindo mapa no navegador...")
+        webbrowser.open(f'file://{map_file.absolute()}')
 
-        if map_file:
-            print(f"\n Abrindo mapa no navegador...")
-            webbrowser.open(f'file://{map_file.absolute()}')
-
-    print("\n✓ Teste concluído!")
+    print("\n Concluido!")
     print("="*70)
 
 

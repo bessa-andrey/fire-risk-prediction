@@ -1,440 +1,151 @@
-# Status do Projeto - Detecção e Propagação de Incêndios Florestais
+# Status do Projeto - Classificacao Automatica de Focos de Incendio
 
-**Data da Última Atualização**: 11 de novembro de 2025
-**Responsável**: Desenvolvedor em Manaus, AM
-**Fase Atual**: Fase 1 - Etapa 2 (Processamento de Dados) - CONCLUÍDO
+**Data da Ultima Atualizacao**: 12 de fevereiro de 2026
+**Responsavel**: Andrey Ruben Ribeiro Bessa
+**Instituicao**: PPGEE - Universidade Federal do Amazonas (UFAM)
+**Fase Atual**: Classificacao concluida. Qualificacao aprovada. Proximo: analise espaco-temporal.
 
 ---
 
-## 📊 Resumo Executivo
+## Resumo Executivo
 
 | Item | Status | Progresso |
 |------|--------|-----------|
-| Etapa 1 - Ingestão de Dados | ✅ Concluído | 100% |
-| Etapa 2 - Processamento de Dados | ✅ Concluído | 100% |
-| Etapa 3 - Feature Engineering | ⏳ Próximo | 0% |
-| Etapa 4 - Treinamento de Modelos | ⏳ Futuro | 0% |
-| **Fase 1 Total** | **50% Concluído** | **50%** |
+| Etapa 1 - Ingestao de Dados | Concluido | 100% |
+| Etapa 2 - Processamento de Dados | Concluido | 100% |
+| Etapa 3 - Feature Engineering + Weak Labeling | Concluido | 100% |
+| Etapa 4 - Treinamento, Validacao e Analise | Concluido | 100% |
+| Dissertacao (qualificacao) | Concluido | 100% |
+| Correcoes pos-qualificacao (AVALIACAO-V2) | Concluido | 100% |
+| Analise espaco-temporal (propagacao) | Planejado | 0% |
+| Redacao final e defesa | Planejado | 0% |
+| **Pipeline Completo** | **100% Concluido** | **100%** |
 
 ---
 
-## ✅ Etapa 1: Ingestão de Dados (CONCLUÍDO)
+## Etapa 1: Ingestao de Dados (CONCLUIDO)
 
 ### Dados Obtidos
 
-| Dataset | Quantidade | Tamanho | Status |
-|---------|-----------|---------|--------|
-| FIRMS Hotspots | 708 registros | 16.6 KB | ✅ Local |
-| MCD64A1 (Queimadas) | 36 arquivos (mensais) | 100-150 MB | ✅ Google Drive |
-| Sentinel-2 (Imagens) | 6 compostos (dry/wet) | 1-3 GB | ✅ Google Drive |
-| ERA5 (Meteorologia) | 12+ arquivos | 500 MB - 1 GB | ✅ Google Drive |
+| Dataset | Descricao | Resolucao | Periodo |
+|---------|-----------|-----------|---------|
+| FIRMS | Focos de incendio ativo (VIIRS 375m) | 375m | 2022-2024 |
+| MCD64A1 | Area queimada MODIS | 500m | 2022-2024 |
+| Sentinel-2 | Imagens opticas (NDVI) | 10m | 2022-2024 |
+| ERA5 | Reanalise meteorologica (5 variaveis) | 0.25 graus | 2022-2024 |
 
-### Documentação
-
-- ✅ [ETAPA1_INGESTAO.md](ETAPA1_INGESTAO.md) - Guia completo de ingestão
-- ✅ [SETUP_AMBIENTE.md](SETUP_AMBIENTE.md) - Configuração de credenciais
-- ✅ Scripts de download implementados em `src/data_ingest/`
-
-### Próximas Ações para Etapa 1
-
-- ✅ Baixar arquivos do Google Drive para `data/raw/`
-- ✅ Verificar integridade dos downloads
+### Scripts
+- `src/data_ingest/download_firms.py`
+- `src/data_ingest/download_mcd64a1.py` / `download_mcd64a1_appeears.py`
+- `src/data_ingest/download_sentinel2.py` / `download_sentinel2_pc.py`
+- `src/data_ingest/download_era5.py` / `download_era5_cds.py`
+- `src/data_ingest/run_all_downloads.py`
 
 ---
 
-## ✅ Etapa 2: Processamento de Dados (CONCLUÍDO)
+## Etapa 2: Processamento de Dados (CONCLUIDO)
 
-### Scripts de Processamento Implementados
-
-| Script | Função | Linhas | Status |
-|--------|--------|--------|--------|
-| [process_firms.py](src/preprocessing/process_firms.py) | Limpeza FIRMS + persistência | 250 | ✅ Pronto |
-| [process_mcd64a1.py](src/preprocessing/process_mcd64a1.py) | Processamento queimadas | 280 | ✅ Pronto |
-| [process_sentinel2.py](src/preprocessing/process_sentinel2.py) | Processamento imagens | 280 | ✅ Pronto |
-| [process_era5.py](src/preprocessing/process_era5.py) | Processamento meteorologia | 320 | ✅ Pronto |
-| [data_loader.py](src/preprocessing/data_loader.py) | Data loader + features | 320 | ✅ Pronto |
-| [run_all_preprocessing.py](src/preprocessing/run_all_preprocessing.py) | Master script | 200 | ✅ Pronto |
-
-**Total**: 1,650 linhas de código de produção
-
-### Processamentos Implementados
-
-**FIRMS Processing**:
-- ✅ Validação de geometria (MATOPIBA bounds)
-- ✅ Agregação temporal (0.1° grid, 3 dias)
-- ✅ Cálculo de persistência (7 dias)
-- ✅ Filtragem de confiança (30% mínimo)
-
-**MCD64A1 Processing**:
-- ✅ Carregamento de 36 arquivos mensais
-- ✅ Crop para MATOPIBA
-- ✅ Merge temporal (36 meses)
-- ✅ Cálculo de área queimada (km²)
-
-**Sentinel-2 Processing**:
-- ✅ Carregamento de bandas espectrais
-- ✅ Cálculo de NDVI
-- ✅ Merge por estação (dry/wet)
-- ✅ Estatísticas de vegetação
-
-**ERA5 Processing**:
-- ✅ Agregação horária → diária
-- ✅ Cálculo de magnitude e direção do vento
-- ✅ Cálculo de umidade relativa
-- ✅ Série temporal contínua (1095 dias)
-
-### Documentação
-
-- ✅ [ETAPA2_PROCESSAMENTO.md](ETAPA2_PROCESSAMENTO.md) - Guia completo (650 linhas)
-- ✅ [ETAPA2_QUICK_START.txt](ETAPA2_QUICK_START.txt) - Quick start guide
-- ✅ [CHANGELOG_ETAPA2.md](CHANGELOG_ETAPA2.md) - Histórico completo desta sessão
-
-### Uso
-
-```bash
-# Opção 1: Executar tudo
-python src/preprocessing/run_all_preprocessing.py
-
-# Opção 2: Scripts individuais
-python src/preprocessing/process_firms.py
-python src/preprocessing/process_mcd64a1.py
-python src/preprocessing/process_sentinel2.py
-python src/preprocessing/process_era5.py
-
-# Opção 3: Python programático
-from src.preprocessing.data_loader import DataLoader
-loader = DataLoader()
-loader.load_all()
-```
-
-### Outputs de Etapa 2
-
-```
-data/processed/
-├── firms/
-│   ├── firms_processed.csv (hotspots limpos)
-│   └── firms_stats.json
-├── burned_area/
-│   ├── mcd64a1_burned_area.nc (série temporal)
-│   └── mcd64a1_stats.json
-├── sentinel2/
-│   ├── sentinel2_dry_composite.nc (dry season)
-│   ├── sentinel2_wet_composite.nc (wet season)
-│   └── sentinel2_stats.json
-└── era5/
-    ├── era5_daily_aggregates.nc (1095 dias)
-    ├── weather_statistics.csv
-    └── era5_stats.json
-```
-
-### Status de Etapa 2
-
-- ✅ 6 scripts de processamento implementados
-- ✅ Data loader com lazy-load
-- ✅ Feature extractor para Module A e B
-- ✅ Documentação completa
-- ✅ Pronto para executar
+### Scripts
+- `src/preprocessing/process_firms.py` - Limpeza, filtragem, persistencia
+- `src/preprocessing/process_mcd64a1.py` - Mosaico, reprojecao, GeoTIFF
+- `src/preprocessing/process_sentinel2.py` - NDVI, cloud masking
+- `src/preprocessing/process_era5.py` - Interpolacao, derivacao de variaveis
+- `src/preprocessing/data_loader.py` - Data loader unificado
+- `src/preprocessing/run_all_preprocessing.py` - Master script
 
 ---
 
-## ⏳ Etapa 3: Feature Engineering (PRÓXIMO)
+## Etapa 3: Feature Engineering + Weak Labeling (CONCLUIDO)
 
-### Componentes Planejados
+### Scripts
+- `src/preprocessing/weak_labeling.py` - Rotulagem automatizada FIRMS vs MCD64A1 (+-15 dias)
+- `src/preprocessing/feature_engineering.py` - Extracao de 20+ features
+- `src/preprocessing/validate_weak_labels.py` - Validacao com Cohen's Kappa (200 amostras)
+- `src/preprocessing/run_etapa3.py` - Master script
 
-1. **weak_labeling.py** (a implementar)
-   - Comparar FIRMS vs MCD64A1 → Verdadeiros positivos
-   - Gerar y_train para Module A
-
-2. **feature_engineering.py** (a implementar)
-   - Extrair features tabulares de todos datasets
-   - Criar X_train para ML
-
-3. **calculate_persistence.py** (a implementar)
-   - Métricas avançadas de persistência
-   - Features para detecção
-
-4. **create_grid_labels.py** (a implementar)
-   - Criar grids para Module B
-   - Labeling de propagação D+1
-
-### Documentação Planejada
-
-- ETAPA3_FEATURE_ENGINEERING.md (a ser escrito)
+### Dataset Gerado
+- `data/processed/training/module_a_balanced.csv` - 9.198 amostras (4.599 real / 4.599 espurio)
+- 20+ features: temporais, meteorologicas, vegetacao (NDVI), espaciais
 
 ---
 
-## ⏳ Etapa 4: Treinamento de Modelos (FUTURO)
+## Etapa 4: Treinamento e Validacao (CONCLUIDO)
 
-### Module A: Detecção de Espúrios (Classificação)
+### Scripts
+- `src/models/train_module_a.py` - 9 modelos (Dummy, LR, SVM, DT, RF, LightGBM, XGBoost, LightGBM_Optuna, XGBoost_Optuna)
+- `src/models/evaluate_module_a.py` - Validacao espacial (leave-one-state-out) e temporal
+- `src/models/statistical_analysis.py` - Bootstrap CI (1000x), McNemar, Wilcoxon
+- `src/models/predict_module_a.py` - Inferencia em novos dados
+- `src/models/run_module_a_pipeline.py` - Pipeline completo
+- `src/models/run_etapa4.py` - Master script
 
-**Objetivo**: Detectar falsos positivos em hotspots FIRMS
+### Resultados Principais
 
-**Modelos**:
-- Baseline: Regras heurísticas
-- GBM: LightGBM/XGBoost (target: 80% acurácia)
-- Optional: EfficientNet CNN
+| Modelo | Acuracia | ROC-AUC | PR-AUC |
+|--------|----------|---------|--------|
+| DummyClassifier | 70% | 50% | 35% |
+| Regressao Logistica | 75% | 78% | 72% |
+| SVM (RBF) | 77% | 80% | 74% |
+| Random Forest | 79% | 83% | 78% |
+| **LightGBM (proposto)** | **82%** | **86%** | **81%** |
+| XGBoost | 81% | 85% | 80% |
 
-**Métricas**:
-- PR-AUC ≥ 0.80
-- Precision @ Recall=0.90 > 0.75
+### Validacao
+- **Espacial (leave-one-state-out)**: Variacao < 4pp entre 4 estados
+- **Temporal (treino 2022-2023, teste 2024)**: Degradacao ~5pp (concept drift)
+- **Impacto operacional**: Reducao de 87% dos falsos positivos (recall 84%)
 
-**Saída**:
-- `hotspots_labeled.gpkg` (GeoPackage)
-- `classification_scores.csv`
-
-### Module B: Propagação D+1 (Regressão/Segmentação)
-
-**Objetivo**: Prever expansão de incêndio para amanhã
-
-**Modelos**:
-- Baseline: Cellular automaton logístico
-- Optional: ConvLSTM
-
-**Métricas**:
-- IoU ≥ 0.60
-- Brier Score < 0.25
-
-**Saída**:
-- `prob_spread_d1.tif` (GeoTIFF)
-- `risk_zones.shp` (Shapefile)
+### Modelos Treinados
+- `data/models/module_a/module_a_lightgbm.pkl`
+- `data/models/module_a/module_a_xgboost.pkl`
 
 ---
 
-## 📂 Estrutura do Projeto
+## Dissertacao (QUALIFICACAO APROVADA)
 
-```
-Projeto Mestrado/
-├── docs/
-│   ├── CLAUDE.md (guia para Claude Code)
-│   ├── PROJETO_SETUP.md (definição do projeto)
-│   ├── SETUP_AMBIENTE.md (setup técnico)
-│   ├── ETAPA1_INGESTAO.md (ingestão de dados) ✅
-│   ├── ETAPA2_PROCESSAMENTO.md (processamento) ✅
-│   ├── STATUS_PROJETO.md (este arquivo)
-│   └── ARQUIVOS_DESCONTINUADOS.md
-│
-├── src/
-│   ├── data_ingest/ (Etapa 1) ✅
-│   │   ├── download_firms.py
-│   │   ├── download_mcd64a1.py
-│   │   ├── download_sentinel2.py
-│   │   ├── download_era5.py
-│   │   └── run_all_downloads.py
-│   │
-│   └── preprocessing/ (Etapa 2) ✅
-│       ├── process_firms.py
-│       ├── process_mcd64a1.py
-│       ├── process_sentinel2.py
-│       ├── process_era5.py
-│       ├── data_loader.py
-│       └── run_all_preprocessing.py
-│
-├── data/
-│   ├── raw/ (Etapa 1 output)
-│   │   ├── firms_hotspots/
-│   │   ├── mcd64a1/
-│   │   ├── sentinel2/
-│   │   └── era5/
-│   │
-│   └── processed/ (Etapa 2 output) → Etapa 3 input
-│       ├── firms/
-│       ├── burned_area/
-│       ├── sentinel2/
-│       └── era5/
-│
-└── (Etapa 3 output would be in data/processed/) → Etapa 4 input
-```
+### Capitulos
+- Cap 1: Introducao (objetivos, justificativa, contribuicoes)
+- Cap 2: Fundamentos Teoricos (sensoriamento remoto, ML, trabalhos relacionados)
+- Cap 3: Metodologia (pipeline, weak labeling, features, algoritmos, validacao)
+- Cap 4: Experimentos e Resultados (metricas, validacao, analise de erros, baselines)
+- Cap 5: Conclusao (contribuicoes, limitacoes, proximos passos, cronograma)
+
+### Correcoes AVALIACAO-V2 (CONCLUIDO)
+Todas as 8 correcoes do orientador implementadas e marcadas em azul:
+1. Titulo atualizado (sem "previsao de trajetoria")
+2. Resumo/Abstract revisados (baselines, recall, leave-one-state-out)
+3. Introducao (contexto operacional INPE)
+4. Objetivos especificos detalhados (6 objetivos com metricas)
+5. Separacao Fundamentacao vs Metodologia
+6. Justificativas na Metodologia (janela +-15d, MCD64A1, LightGBM vs DL, features, classes)
+7. Resultados expandidos (matriz confusao por estado, analise erros, baselines)
+8. Conclusao preliminar e cronograma (Mar-Ago 2026)
+
+### Localizacao
+`Dissertacao/PPGEE-MODELO-DOUTORADO-MESTRADO-Latex-v4/`
 
 ---
 
-## 🔄 Fluxo do Projeto
+## Cronograma Ate a Defesa
 
-```
-Etapa 1: Ingestão (Raw Data)
-    ↓ ✅ CONCLUÍDO
-data/raw/ (4 tipos de dados)
-    ↓
-Etapa 2: Processamento (Cleaned Data)
-    ↓ ✅ CONCLUÍDO
-data/processed/ (4 tipos processados)
-    ↓
-Etapa 3: Feature Engineering (ML-Ready Data)
-    ↓ ⏳ PRÓXIMO
-X_train, y_train para Module A e B
-    ↓
-Etapa 4: Treinamento (Modelos ML)
-    ↓ ⏳ FUTURO
-hotspots_labeled.gpkg + prob_spread_d1.tif
-    ↓
-Dissertação de Mestrado Concluída
-```
+| Atividade | Mar | Abr | Mai | Jun | Jul | Ago |
+|-----------|-----|-----|-----|-----|-----|-----|
+| Refinamento do classificador | X | X | | | | |
+| Ampliacao da analise de erros | X | X | | | | |
+| Encadeamento espaco-temporal | | X | X | X | | |
+| Avaliacao experimental propagacao | | | X | X | | |
+| Consolidacao dos resultados | | | | X | X | |
+| Redacao final | | | | | X | X |
+| Defesa | | | | | | X |
 
 ---
 
-## 📊 Métricas de Progresso
+## Repositorio GitHub
 
-### Por Etapa
-
-| Etapa | Tipo | Status | % |
-|-------|------|--------|-----|
-| 1 | Ingestão | ✅ Concluído | 100% |
-| 2 | Processamento | ✅ Concluído | 100% |
-| 3 | Features | ⏳ Planejado | 0% |
-| 4 | Modelos | ⏳ Futuro | 0% |
-
-### Por Tipo de Dados
-
-| Dados | Status | Processados |
-|-------|--------|------------|
-| FIRMS (hotspots) | ✅ Raw | ✅ Processados |
-| MCD64A1 (queimadas) | ✅ Raw | ✅ Processados |
-| Sentinel-2 (imagens) | ✅ Raw | ✅ Processados |
-| ERA5 (meteorologia) | ✅ Raw | ✅ Processados |
-
-### Por Tipo de Saída
-
-| Saída | Status | Uso |
-|------|--------|-----|
-| FIRMS CSV | ✅ Pronto | Module A input |
-| MCD64A1 xarray | ✅ Pronto | Ground truth A/B |
-| Sentinel-2 xarray | ✅ Pronto | Features A/B |
-| ERA5 xarray | ✅ Pronto | Features A/B |
-| Data Loader | ✅ Pronto | Acesso aos dados |
+**URL**: https://github.com/bessa-andrey/fire-risk-prediction
+**Status**: Publico, codigo aberto
 
 ---
 
-## 🎯 Próximas Ações
-
-### Imediato (Hoje)
-
-1. **Verificar Downloads**
-   ```bash
-   # Confirmar que arquivos estão em data/raw/
-   ls -la data/raw/firms_hotspots/
-   ls -la data/raw/mcd64a1/
-   ls -la data/raw/sentinel2/
-   ls -la data/raw/era5/
-   ```
-
-2. **Executar Etapa 2**
-   ```bash
-   python src/preprocessing/run_all_preprocessing.py
-   ```
-
-3. **Verificar Outputs**
-   ```bash
-   ls -la data/processed/
-   ```
-
-### Curto Prazo (Esta Semana)
-
-1. **Iniciar Etapa 3**: Feature Engineering
-2. **Implementar Weak Labeling**: Comparação FIRMS vs MCD64A1
-3. **Extrair Features**: Tabular + spatial/temporal context
-
-### Médio Prazo (Próximas 2 Semanas)
-
-1. **Etapa 4**: Treinar Module A (classificador)
-2. **Etapa 4**: Treinar Module B (propagação D+1)
-3. **Validação**: Spatial/temporal splits
-
-### Longo Prazo (Restante do Mestrado)
-
-1. Refinamento de modelos
-2. Escrita de dissertação
-3. Visualizações em QGIS
-4. Análise de resultados por município/bioma
-
----
-
-## 📈 Pontos-Chave da Implementação
-
-### Etapa 1 - Ingestão
-
-✅ **Completado**:
-- 4 API de dados diferentes configuradas
-- 708 hotspots FIRMS obtidos
-- 54 arquivos geoespaciais exportados para Google Drive
-- Documentação completa
-
-### Etapa 2 - Processamento
-
-✅ **Completado**:
-- 6 scripts de processamento (1,650 linhas)
-- Data loader com lazy-load (320 linhas)
-- Feature extractor para Module A e B
-- Documentação abrangente (850 linhas)
-- Pronto para executar
-
-### Etapa 3 - Features (Próximo)
-
-⏳ **A fazer**:
-- Weak labeling (FIRMS vs MCD64A1)
-- Feature engineering (tabular + spatial)
-- Dataset criação para Module A e B
-
----
-
-## 💾 Espaço em Disco
-
-| Item | Tamanho | Local |
-|------|---------|-------|
-| data/raw/ (brutos) | 2-4 GB | Pasta do usuário |
-| data/processed/ (processados) | ~1-2 GB | Pasta do usuário |
-| src/ (código) | ~50 MB | Repositório |
-| docs/ (documentação) | ~5 MB | Repositório |
-| **Total** | **~2-5 GB** | Gestível |
-
----
-
-## 🔐 Credenciais Necessárias
-
-- ✅ **Google Earth Engine**: Configurado (mestrado25)
-- ✅ **NASA Earthdata**: Configurado (andrey.bessa)
-- ✅ **Copernicus CDS**: Configurado (credenciais salvas)
-- ✅ **.env**: Criar se ainda não existe
-
----
-
-## 📚 Referências Principais
-
-- [PROJETO_SETUP.md](PROJETO_SETUP.md) - Definição técnica completa
-- [ETAPA1_INGESTAO.md](ETAPA1_INGESTAO.md) - Guia de ingestão
-- [ETAPA2_PROCESSAMENTO.md](ETAPA2_PROCESSAMENTO.md) - Guia de processamento
-- [README-fire-open-data-pipeline.md](README-fire-open-data-pipeline.md) - Original
-- [CLAUDE.md](CLAUDE.md) - Guia para Claude Code
-
----
-
-## 🆘 Suporte
-
-### Se encontrar erros em Etapa 2
-
-1. Consultar [ETAPA2_PROCESSAMENTO.md](ETAPA2_PROCESSAMENTO.md) seção "Troubleshooting"
-2. Verificar que arquivos em `data/raw/` existem
-3. Confirmar dependências: `pip install rasterio rioxarray xarray`
-4. Executar scripts individuais para debugging
-5. Contactar desenvolvedor (Manaus, AM)
-
----
-
-## 📝 Notas
-
-- **Nomenclatura**: Mudança de "Semana 1-4" para "Fase 1 - Etapa 1-4" completada
-- **Sem emojis**: Todos scripts seguem padrão clean/professional
-- **Documentação**: Bilíngue onde necessário (português/English)
-- **Reproducibilidade**: Todos parâmetros documentados
-
----
-
-## ✅ Conclusão
-
-**Fase 1 - Etapa 2 está 100% completa e pronta para execução.**
-
-Próximo passo lógico: Etapa 3 - Feature Engineering (quando os dados brutos forem processados).
-
----
-
-**Última Atualização**: 11 de novembro de 2025, 18:00 (BRT)
-**Próxima Revisão Esperada**: Após conclusão de Etapa 3
-
+**Ultima Atualizacao**: 12 de fevereiro de 2026
+**Proxima Revisao**: Apos inicio da analise espaco-temporal

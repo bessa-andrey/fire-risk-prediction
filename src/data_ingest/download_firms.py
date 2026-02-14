@@ -164,28 +164,60 @@ def download_firms_archive(source, start_date, end_date):
         return pd.DataFrame()
 
 
-def main():
+def main(start_year=2019, end_year=2024):
     """
-    Main function to download FIRMS data for MATOPIBA (2022-2024).
+    Main function to download FIRMS data for MATOPIBA.
+
+    Args:
+        start_year: First year to download (default 2019 for expanded dataset)
+        end_year: Last year to download (default 2024)
     """
     print("=" * 60)
-    print("FIRMS HOTSPOT DOWNLOAD - MATOPIBA (2022-2024)")
+    print(f"FIRMS HOTSPOT DOWNLOAD - MATOPIBA ({start_year}-{end_year})")
     print("=" * 60)
 
-    # Define date range
-    start_date = datetime(2022, 1, 1)
-    end_date = datetime(2024, 12, 31)
+    start_date = datetime(start_year, 1, 1)
+    end_date = datetime(end_year, 12, 31)
 
-    # Download VIIRS NOAA-20 (primary source, 375m resolution)
-    viirs_data = download_firms_archive('VIIRS_NOAA20_SP', start_date, end_date)
+    all_data = []
 
-    # Save to CSV
-    if not viirs_data.empty:
-        output_file = OUTPUT_DIR / 'firms_viirs_2022-2024.csv'
+    # VIIRS SNPP covers 2012+ (use for years before NOAA-20)
+    if start_year < 2018:
+        print("\n[INFO] VIIRS NOAA-20 not available before 2018, using VIIRS SNPP")
+        snpp_end = datetime(min(2017, end_year), 12, 31)
+        snpp_data = download_firms_archive('VIIRS_SNPP_SP', start_date, snpp_end)
+        if not snpp_data.empty:
+            snpp_data['source_sensor'] = 'VIIRS_SNPP'
+            all_data.append(snpp_data)
+        noaa20_start = datetime(2018, 1, 1)
+    else:
+        noaa20_start = start_date
+
+    # VIIRS NOAA-20 (2018+)
+    if end_year >= 2018:
+        noaa20_data = download_firms_archive('VIIRS_NOAA20_SP', noaa20_start, end_date)
+        if not noaa20_data.empty:
+            noaa20_data['source_sensor'] = 'VIIRS_NOAA20'
+            all_data.append(noaa20_data)
+
+    # Combine all data
+    if all_data:
+        viirs_data = pd.concat(all_data, ignore_index=True)
+
+        # Remove exact duplicates
+        before_dedup = len(viirs_data)
+        viirs_data = viirs_data.drop_duplicates(
+            subset=['latitude', 'longitude', 'acq_date', 'acq_time'],
+            keep='first'
+        )
+        after_dedup = len(viirs_data)
+        if before_dedup > after_dedup:
+            print(f"[INFO] Removed {before_dedup - after_dedup} duplicate detections")
+
+        output_file = OUTPUT_DIR / f'firms_viirs_{start_year}-{end_year}.csv'
         viirs_data.to_csv(output_file, index=False)
         print(f"\nSaved to: {output_file}")
 
-        # Show summary
         print("\n" + "=" * 60)
         print("DOWNLOAD COMPLETE")
         print("=" * 60)
@@ -201,4 +233,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description='Download FIRMS data for MATOPIBA')
+    parser.add_argument('--start-year', type=int, default=2019, help='Start year (default: 2019)')
+    parser.add_argument('--end-year', type=int, default=2024, help='End year (default: 2024)')
+    args = parser.parse_args()
+    main(start_year=args.start_year, end_year=args.end_year)

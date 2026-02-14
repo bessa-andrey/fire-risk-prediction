@@ -18,13 +18,17 @@ from sklearn.metrics import classification_report, confusion_matrix, roc_auc_sco
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.dummy import DummyClassifier
+from sklearn.svm import SVC
 import lightgbm as lgb
 import xgboost as xgb
+import optuna
 import json
 import pickle
 from datetime import datetime
 import warnings
 warnings.filterwarnings('ignore')
+optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 # Configuration
 INPUT_DIR = Path('data/processed/training')
@@ -194,6 +198,149 @@ class ModuleAClassifier:
 
         return model
 
+    def create_dummy_model(self) -> DummyClassifier:
+        """Create DummyClassifier (majority class baseline)"""
+        print("[INFO] Creating DummyClassifier (majority class baseline)...")
+
+        model = DummyClassifier(
+            strategy='most_frequent',
+            random_state=42
+        )
+        print("[OK] DummyClassifier configured (strategy=most_frequent)")
+
+        return model
+
+    def create_svm_model(self) -> SVC:
+        """Create SVM-RBF model (baseline)"""
+        print("[INFO] Creating SVM-RBF classifier (baseline)...")
+
+        model = SVC(
+            kernel='rbf',
+            C=1.0,
+            gamma='scale',
+            probability=True,  # Required for predict_proba
+            random_state=42,
+            class_weight='balanced'
+        )
+        print("[OK] SVM-RBF configured")
+
+        return model
+
+    def optimize_hyperparameters(self, X_train, y_train, model_type: str, n_trials: int = 100):
+        """
+        Optimize hyperparameters using Optuna with TPE sampler.
+
+        Args:
+            X_train: Training features (scaled)
+            y_train: Training labels
+            model_type: 'lightgbm' or 'xgboost'
+            n_trials: Number of optimization trials
+
+        Returns:
+            dict with best hyperparameters
+        """
+        from sklearn.model_selection import StratifiedKFold, cross_val_score
+
+        print(f"\n[INFO] Optimizing {model_type.upper()} hyperparameters with Optuna ({n_trials} trials)...")
+
+        def objective(trial):
+            if model_type == 'lightgbm':
+                params = {
+                    'num_leaves': trial.suggest_int('num_leaves', 15, 127),
+                    'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.3, log=True),
+                    'max_depth': trial.suggest_int('max_depth', 3, 15),
+                    'n_estimators': trial.suggest_int('n_estimators', 50, 500),
+                    'min_child_samples': trial.suggest_int('min_child_samples', 5, 50),
+                    'subsample': trial.suggest_float('subsample', 0.5, 1.0),
+                    'colsample_bytree': trial.suggest_float('colsample_bytree', 0.5, 1.0),
+                    'reg_alpha': trial.suggest_float('reg_alpha', 1e-8, 10.0, log=True),
+                    'reg_lambda': trial.suggest_float('reg_lambda', 1e-8, 10.0, log=True),
+                    'random_state': 42,
+                    'verbose': -1,
+                    'device_type': self.device,
+                }
+                model = lgb.LGBMClassifier(**params)
+
+            elif model_type == 'xgboost':
+                params = {
+                    'max_depth': trial.suggest_int('max_depth', 3, 15),
+                    'learning_rate': trial.suggest_float('learning_rate', 0.01, 0.3, log=True),
+                    'n_estimators': trial.suggest_int('n_estimators', 50, 500),
+                    'min_child_weight': trial.suggest_int('min_child_weight', 1, 10),
+                    'subsample': trial.suggest_float('subsample', 0.5, 1.0),
+                    'colsample_bytree': trial.suggest_float('colsample_bytree', 0.5, 1.0),
+                    'reg_alpha': trial.suggest_float('reg_alpha', 1e-8, 10.0, log=True),
+                    'reg_lambda': trial.suggest_float('reg_lambda', 1e-8, 10.0, log=True),
+                    'gamma': trial.suggest_float('gamma', 1e-8, 5.0, log=True),
+                    'random_state': 42,
+                    'verbosity': 0,
+                    'tree_method': 'hist',
+                    'device': 'cuda' if self.use_gpu else 'cpu',
+                }
+                model = xgb.XGBClassifier(**params)
+            else:
+                raise ValueError(f"Optuna optimization not supported for {model_type}")
+
+            # 5-fold stratified CV
+            cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+            scores = cross_val_score(model, X_train, y_train, cv=cv, scoring='average_precision', n_jobs=-1)
+            return scores.mean()
+
+        # Create Optuna study with TPE sampler
+        sampler = optuna.samplers.TPESampler(seed=42)
+        study = optuna.create_study(direction='maximize', sampler=sampler)
+        study.optimize(objective, n_trials=n_trials, show_progress_bar=True)
+
+        best_params = study.best_params
+        best_score = study.best_value
+
+        print(f"[OK] Best PR-AUC (CV): {best_score:.4f}")
+        print(f"[OK] Best params: {json.dumps(best_params, indent=2)}")
+
+        # Save optimization history
+        optuna_results = {
+            'model_type': model_type,
+            'n_trials': n_trials,
+            'best_score': float(best_score),
+            'best_params': best_params,
+            'optimization_history': [
+                {'trial': t.number, 'value': t.value, 'params': t.params}
+                for t in study.trials if t.value is not None
+            ]
+        }
+        optuna_path = OUTPUT_DIR / f'optuna_{model_type}.json'
+        with open(optuna_path, 'w') as f:
+            json.dump(optuna_results, f, indent=2, default=str)
+        print(f"[OK] Optuna results saved to: {optuna_path}")
+
+        return best_params
+
+    def create_optimized_lightgbm(self, best_params: dict) -> lgb.LGBMClassifier:
+        """Create LightGBM model with optimized hyperparameters"""
+        print("[INFO] Creating optimized LightGBM classifier...")
+
+        params = {**best_params, 'random_state': 42, 'verbose': -1, 'device_type': self.device}
+        model = lgb.LGBMClassifier(**params)
+        print(f"[OK] Optimized LightGBM configured with device: {self.device.upper()}")
+
+        return model
+
+    def create_optimized_xgboost(self, best_params: dict) -> xgb.XGBClassifier:
+        """Create XGBoost model with optimized hyperparameters"""
+        print("[INFO] Creating optimized XGBoost classifier...")
+
+        params = {
+            **best_params,
+            'random_state': 42,
+            'verbosity': 0,
+            'tree_method': 'hist',
+            'device': 'cuda' if self.use_gpu else 'cpu',
+        }
+        model = xgb.XGBClassifier(**params)
+        print(f"[OK] Optimized XGBoost configured")
+
+        return model
+
     def train_and_evaluate(self, X: np.ndarray, y: np.ndarray, model_type: str = 'lightgbm'):
         """Train model and evaluate"""
         print(f"\n[INFO] Training {model_type.upper()} classifier...")
@@ -225,6 +372,16 @@ class ModuleAClassifier:
             model = self.create_tree_model()
         elif model_type_lower == 'randomforest':
             model = self.create_random_forest_model()
+        elif model_type_lower == 'dummy':
+            model = self.create_dummy_model()
+        elif model_type_lower == 'svm':
+            model = self.create_svm_model()
+        elif model_type_lower == 'lightgbm_optuna':
+            best_params = self.optimize_hyperparameters(X_train_scaled, y_train, 'lightgbm', n_trials=100)
+            model = self.create_optimized_lightgbm(best_params)
+        elif model_type_lower == 'xgboost_optuna':
+            best_params = self.optimize_hyperparameters(X_train_scaled, y_train, 'xgboost', n_trials=100)
+            model = self.create_optimized_xgboost(best_params)
         else:
             raise ValueError(f"Unknown model type: {model_type}")
 
@@ -331,12 +488,17 @@ def main():
         print(f"  Label {label_val}: {count} samples ({count/len(y)*100:.1f}%)")
 
     # Define all models to train
+    # Baselines first (simplest to most complex), then proposed models
     MODEL_TYPES = [
+        ('dummy', 'DummyClassifier (Majority)'),
         ('logistic', 'Logistic Regression (Baseline)'),
+        ('svm', 'SVM-RBF (Baseline)'),
         ('tree', 'Decision Tree (Baseline)'),
         ('randomforest', 'Random Forest (Baseline)'),
-        ('lightgbm', 'LightGBM'),
-        ('xgboost', 'XGBoost'),
+        ('lightgbm', 'LightGBM (Default)'),
+        ('xgboost', 'XGBoost (Default)'),
+        ('lightgbm_optuna', 'LightGBM (Optuna)'),
+        ('xgboost_optuna', 'XGBoost (Optuna)'),
     ]
 
     all_results = {}
@@ -378,21 +540,28 @@ def main():
         json.dump(summary, f, indent=2)
 
     # Print final summary table
-    print(f"\n{'='*60}")
+    print(f"\n{'='*70}")
     print("TRAINING COMPLETE - MODEL COMPARISON")
-    print(f"{'='*60}")
-    print(f"\n{'Model':<25} {'Accuracy':>10} {'ROC-AUC':>10} {'PR-AUC':>10}")
-    print("-"*55)
+    print(f"{'='*70}")
+    print(f"\n{'Model':<30} {'Accuracy':>10} {'ROC-AUC':>10} {'PR-AUC':>10}")
+    print("-"*60)
 
     for model_type, result in all_results.items():
-        print(f"{result['name']:<25} {result['accuracy']:>10.4f} {result['roc_auc']:>10.4f} {result['pr_auc']:>10.4f}")
+        print(f"{result['name']:<30} {result['accuracy']:>10.4f} {result['roc_auc']:>10.4f} {result['pr_auc']:>10.4f}")
 
-    # Select best model based on PR-AUC
-    best_model_type = max(all_results, key=lambda x: all_results[x]['pr_auc'])
+    # Select best model based on PR-AUC (exclude dummy from "best" selection)
+    candidate_models = {k: v for k, v in all_results.items() if k != 'dummy'}
+    best_model_type = max(candidate_models, key=lambda x: candidate_models[x]['pr_auc'])
     best_pr_auc = all_results[best_model_type]['pr_auc']
 
-    print("-"*55)
+    print("-"*60)
     print(f"\n[INFO] Best model: {all_results[best_model_type]['name']} (PR-AUC: {best_pr_auc:.4f})")
+
+    # Show improvement over DummyClassifier baseline
+    if 'dummy' in all_results:
+        dummy_pr_auc = all_results['dummy']['pr_auc']
+        improvement = ((best_pr_auc - dummy_pr_auc) / dummy_pr_auc) * 100
+        print(f"[INFO] Improvement over DummyClassifier: +{improvement:.1f}% PR-AUC")
 
     return summary
 

@@ -1,172 +1,75 @@
-# Projeto Mestrado - Machine Learning para Fire Detection
+# Classificacao Automatica de Focos de Incendio
 
-Detecção e propagação de fogo em MATOPIBA (Brasil).
+Dissertacao de Mestrado - PPGEE/UFAM
 
----
-
-## Comece Aqui
-
-Primeiro acesso? Leia na ordem:
-
-1. **[INDEX.md](INDEX.md)** - Índice completo e navegação
-2. **[PROJETO_SETUP.md](PROJETO_SETUP.md)** - O que é este projeto
-3. **[STATUS_PROJETO.md](STATUS_PROJETO.md)** - Progresso atual
+Sistema de Machine Learning para classificar focos de incendio do FIRMS (NASA) como reais ou espurios na regiao MATOPIBA (2022-2024).
 
 ---
 
-## Estrutura Rápida
+## Resultado Principal
 
-```
-docs/
-├── setup/     - Configurar ambiente
-├── etapas/    - Executar pipelines (Etapa 1-4)
-├── modulos/   - Usar Módulo A em produção
-└── visual/    - Gráficos e visualizações
-
-src/
-├── preprocessing/  - Scripts Etapas 1-3
-├── models/         - Scripts Etapas 3-4
-└── propagation/    - Módulo B (futuro)
-
-data/
-├── raw/       - Downloads originais
-├── processed/ - Dados processados
-└── models/    - Modelos treinados
-```
+- **LightGBM**: 82% acuracia, 86% ROC-AUC, 81% PR-AUC
+- **Dataset**: 9.198 amostras balanceadas
+- **Reducao de falsos positivos**: 87% (recall 84%)
+- **Validacao**: espacial (leave-one-state-out) + temporal (treino 2022-23, teste 2024)
 
 ---
 
-## Início Rápido
+## Inicio Rapido
 
-### 1. Setup (primeira vez)
 ```bash
-cd "c:\Users\bessa\Downloads\Projeto Mestrado"
-# Leia: docs/setup/SETUP_AMBIENTE.md
-```
+# 1. Configurar ambiente
+conda create -n fireml python=3.10 -y && conda activate fireml
+pip install -r requirements.txt
 
-### 2. Executar pipeline
-```bash
-# Etapa 1-4 sequencialmente
+# 2. Executar pipeline completo
+python src/data_ingest/run_all_downloads.py
 python src/preprocessing/run_all_preprocessing.py
-python src/preprocessing/run_etapa2.py
 python src/preprocessing/run_etapa3.py
 python src/models/run_etapa4.py
-```
 
-### 3. Usar Módulo A (produção)
-```bash
-python src/models/predict_module_a.py --input seus_hotspots.csv
-```
-
-### 4. Visualizar (aprender)
-```bash
-jupyter lab docs/visual/demo_modulo_a.ipynb
+# 3. Classificar novos focos
+python src/models/predict_module_a.py --input novos_focos.csv
 ```
 
 ---
 
-## Módulo A: Detecção de Hotspots Espúrios
+## Estrutura
 
-Sistema completo para identificar falsos positivos em detecções FIRMS.
+```
+src/
+├── data_ingest/       # Etapa 1: Download (FIRMS, MCD64A1, Sentinel-2, ERA5)
+├── preprocessing/     # Etapas 2-3: Processamento + Features + Weak Labeling
+├── models/            # Etapa 4: Treinamento + Validacao + Analise Estatistica
+└── visualization/     # Mapas
 
-Documentação: [docs/modulos/MODULO_A_INFERENCIA.md](docs/modulos/MODULO_A_INFERENCIA.md)
-
-Visualização: [docs/visual/LEIA-ME-VISUAL.txt](docs/visual/LEIA-ME-VISUAL.txt)
-
----
-
-## Etapas do Projeto
-
-| Etapa | Descrição | Tempo | Status |
-|-------|-----------|-------|--------|
-| 1 | Ingestão de dados | 1-2h | Pronto |
-| 2 | Processamento | 15-60min | Pronto |
-| 3 | Features + Training | 30-45min | Pronto |
-| 4 | Validação | 1-2min | Pronto |
-
-Total: ~3-5 horas com GPU, 4-5 horas sem GPU
+Dissertacao/           # LaTeX (capitulos 0-5)
+docs/                  # Documentacao tecnica
+root/                  # Documentacao raiz (este diretorio)
+```
 
 ---
 
-## Documentação por Tipo
+## Documentacao
 
-### Configuração
-- [docs/setup/SETUP_AMBIENTE.md](docs/setup/SETUP_AMBIENTE.md) - Setup completo
-- [docs/setup/SETUP_COMPLETO.md](docs/setup/SETUP_COMPLETO.md) - Checklist
-
-### Etapas
-- [docs/etapas/ETAPA1_INGESTAO.md](docs/etapas/ETAPA1_INGESTAO.md) - Ingesta de dados
-- [docs/etapas/ETAPA2_PROCESSAMENTO.md](docs/etapas/ETAPA2_PROCESSAMENTO.md) - Limpeza de dados
-- [docs/etapas/ETAPA3_FEATURE_ENGINEERING.md](docs/etapas/ETAPA3_FEATURE_ENGINEERING.md) - Features + training
-- [docs/etapas/ETAPA4_VALIDACAO.md](docs/etapas/ETAPA4_VALIDACAO.md) - Validação
-
-### Módulos
-- [docs/modulos/MODULO_A_INFERENCIA.md](docs/modulos/MODULO_A_INFERENCIA.md) - Detecção espúrios
-
-### Visual
-- [docs/visual/LEIA-ME-VISUAL.txt](docs/visual/LEIA-ME-VISUAL.txt) - Guia visual
-- [docs/visual/demo_modulo_a.ipynb](docs/visual/demo_modulo_a.ipynb) - Jupyter com gráficos
-
-### Reference
-- [CLAUDE.md](CLAUDE.md) - Para Claude Code
-- [INDEX.md](INDEX.md) - Índice completo
+| Arquivo | Descricao |
+|---------|-----------|
+| [INDEX.md](INDEX.md) | Indice completo |
+| [STATUS_PROJETO.md](STATUS_PROJETO.md) | Status atual |
+| [CLAUDE.md](CLAUDE.md) | Guia para Claude Code |
+| [PROJETO_SETUP.md](PROJETO_SETUP.md) | Definicao do projeto |
+| [ESTRUTURA_PROJETO.md](ESTRUTURA_PROJETO.md) | Arvore de arquivos |
 
 ---
 
-## Principais Componentes
+## Status
 
-### Dados Utilizados
-- FIRMS: Detecções de hotspots
-- MCD64A1: Áreas queimadas confirmadas
-- Sentinel-2: Vegetação (NDVI)
-- ERA5: Dados meteorológicos
+Pipeline de classificacao 100% concluido. Qualificacao aprovada.
+Proxima fase: analise espaco-temporal dos focos reais (Mar-Ago 2026).
+Defesa prevista: Agosto 2026.
 
-### Modelos
-- LightGBM (principal)
-- XGBoost (alternativo)
-
-### Features (20+)
-- Confiança FIRMS
-- Persistência
-- Condições meteorológicas
-- Índices de vegetação
-- Contexto espacial
+**Repositorio GitHub**: https://github.com/bessa-andrey/fire-risk-prediction
 
 ---
 
-## Performance
-
-### Módulo A
-- Acurácia: 82%
-- ROC-AUC: 0.86
-- PR-AUC: 0.81
-- Redução de falsos positivos: 87%
-
-### Velocidade
-- Treino: 30-45 min (Etapa 3)
-- Validação: 1-2 min (Etapa 4)
-- Inferência: ~10s por 1000 hotspots
-
----
-
-## Próximas Etapas
-
-1. Módulo B (propagação D+1)
-2. Integração de módulos
-3. Escrita de tese
-
----
-
-## Contato e Suporte
-
-Para dúvidas técnicas ou sugestões, consulte:
-- [CLAUDE.md](CLAUDE.md) - Instruções para Claude Code
-- [docs/setup/](docs/setup/) - Problemas de setup
-
----
-
-**Última atualização**: 11 de novembro de 2025
-
-**Estrutura**: Organizada e pronta para produção
-
-**Status**: Em desenvolvimento - Fase 1 completa, Fase 2 em planejamento
+**Ultima atualizacao**: 12 de fevereiro de 2026
